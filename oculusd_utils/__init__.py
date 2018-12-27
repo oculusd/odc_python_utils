@@ -8,6 +8,7 @@ import logging
 import os
 import traceback
 import inspect
+from datetime import datetime
 
 
 DEBUG = os.getenv('DEBUG', None)
@@ -134,5 +135,14 @@ class OculusDLogger:
     def error(self, message: str):
         message = self._format_msg(stack_data=id_caller(), message=message)
         self.logger.error(message)
+
+
+def get_utc_timestamp(with_decimal: bool=False):
+    epoch = datetime(1970,1,1,0,0,0)
+    now = datetime.utcnow()
+    timestamp = (now - epoch).total_seconds()
+    if with_decimal:
+        return timestamp
+    return int(timestamp)
 
 # EOF
