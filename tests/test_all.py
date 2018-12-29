@@ -20,6 +20,7 @@ import unittest
 from tests.test_logging import TestOculusDLogger
 from tests.test_security import TestInitFunctions
 from tests.test_validation import TestEmailValidation, TestStringValidation, TestDataValidator, TestStringDataValidator
+from tests.test_persistence import TestGenericDataContainer, TestGenericIOProcessor, TestGenericIO, TestTextFileIO
 
 
 def suite():
@@ -72,6 +73,25 @@ def suite():
     suite.addTest(TestStringDataValidator('test_string_data_validator_short_string_with_contain_at_least_one_space'))
     suite.addTest(TestStringDataValidator('test_string_data_validator_none_value_with_contain_at_least_one_space_but_doesnt'))
     suite.addTest(TestStringDataValidator('test_string_data_validator_short_string_with_start_with_alpha_and_start_with_space'))
+
+    suite.addTest(TestGenericDataContainer('test_init_generic_data_container'))
+    suite.addTest(TestGenericDataContainer('test_init_generic_data_container_list'))
+    suite.addTest(TestGenericDataContainer('test_init_generic_data_container_tuple'))
+    suite.addTest(TestGenericDataContainer('test_init_generic_data_container_int'))
+    suite.addTest(TestGenericDataContainer('test_init_generic_data_container_float'))
+    suite.addTest(TestGenericDataContainer('test_init_generic_data_container_decimal'))
+    suite.addTest(TestGenericDataContainer('test_init_generic_data_container_dict'))
+    suite.addTest(TestGenericDataContainer('test_init_generic_data_container_unsupported_type'))
+    suite.addTest(TestGenericDataContainer('test_init_generic_data_container_invalid_validator'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_dict_test01'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_dict_omit_key_expect_exception'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_dict_override_key_with_new_value'))
+
+    suite.addTest(TestGenericIOProcessor('test_init_generic_io_processor'))
+
+    suite.addTest(TestGenericIO('test_init_generic_io'))
+
+    suite.addTest(TestTextFileIO('test_init_text_file_io'))
 
     return suite
 

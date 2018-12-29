@@ -132,6 +132,37 @@ class GenericDataContainer:
             raise Exception('Tuple already set. You have to create another GenericDataContainer instance to store another tuple')
         return len(self.data)
 
+    def _store_int(self, data: object, key: object=None, **kwarg)->int:
+        if isinstance(data, str):
+            self.data = int(float(data))
+        elif isinstance(data, float):
+            self.data = int(data)
+        elif isinstance(data, int):
+            self.data = data
+        else:
+            raise Exception('Could not convert input data to int')
+        return 1
+
+    def _store_float(self, data: object, key: object=None, **kwarg)->int:
+        if isinstance(data, str):
+            self.data = float(data)
+        elif isinstance(data, int):
+            self.data = float(data)
+        elif isinstance(data, float):
+            self.data = data
+        else:
+            raise Exception('Could not convert input data to float')
+        return 1
+
+    def _store_decimal(self, data: object, key: object=None, **kwarg)->int:
+        if isinstance(data, str) or isinstance(data, int) or isinstance(data, float):
+            self.data = Decimal(data)
+        elif isinstance(data, Decimal):
+            self.data = data
+        else:
+            raise Exception('Could not convert input data to Decimal')
+        return 1
+
     def store(self, data: object, key: object=None, **kwarg)->int:
         if self.data_type.__name__ == 'dict':
             return self._strore_dict(data=data, key=key, **kwarg)
@@ -142,30 +173,11 @@ class GenericDataContainer:
         elif self.data_type.__name__ == 'tuple':
             return self._store_tuple(data=data, key=key, **kwarg)
         elif self.data_type.__name__ == 'int':
-            if isinstance(data, str):
-                self.data = int(float(data))
-            elif isinstance(data, float):
-                self.data = int(data)
-            elif isinstance(data, int):
-                self.data = data
-            else:
-                raise Exception('Could not convert input data to int')
+            return self._store_int(data=data, key=key, **kwarg)
         elif self.data_type.__name__ == 'float':
-            if isinstance(data, str):
-                self.data = float(data)
-            elif isinstance(data, int):
-                self.data = float(data)
-            elif isinstance(data, float):
-                self.data = data
-            else:
-                raise Exception('Could not convert input data to float')
+            return self._store_float(data=data, key=key, **kwarg)
         elif self.data_type.__name__ == 'Decimal':
-            if isinstance(data, str) or isinstance(data, int) or isinstance(data, float):
-                self.data = Decimal(data)
-            elif isinstance(data, Decimal):
-                self.data = data
-            else:
-                raise Exception('Could not convert input data to Decimal')
+            return self._store_decimal(data=data, key=key, **kwarg)
         else:
             raise Exception('Data was not a supported type. Type="{}"'.format(type(data)))
 

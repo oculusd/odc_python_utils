@@ -8,6 +8,7 @@
     ],
     "python.unitTest.pyTestEnabled": false,
     "python.unitTest.nosetestsEnabled": false,
-    "python.unitTest.unittestEnabled": true
+    "python.unitTest.unittestEnabled": true,
+    "python.pythonPath": "/Volumes/MacintoshHD/Home/nicc777/Dropbox/Business/oculusd/Projects/github/venv/bin/python"
     
 }
