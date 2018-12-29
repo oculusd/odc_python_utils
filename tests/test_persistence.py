@@ -167,8 +167,33 @@ class TestGenericDataContainer(unittest.TestCase):
     def test_generic_data_container_string_with_no_validator_and_valid_none_store(self):
         gdc = GenericDataContainer(result_set_name='Test', data_type=str)
         gdc.store(data=None)
-        self.assertIsNone(gdc.data)        
-        
+        self.assertIsNone(gdc.data)
+
+    def test_generic_data_container_list_with_string_validator_and_valid_strings(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=list, data_validator=StringDataValidator())
+        l = ['Item 1', 'Item 2']
+        qty = 0
+        for item in l:
+            qty = qty + 1
+            result = gdc.store(data=item, start_with_alpha=False)
+            self.assertEqual(qty, result, 'Item "{}" failed to be stored'.format(qty))
+
+    def test_generic_data_container_list_with_string_validator_and_one_invalid_object_must_raise_exception(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=list, data_validator=StringDataValidator())
+        l = ['Item 1', 1, 'This item will be ignored']
+        result = gdc.store(data=l[0], start_with_alpha=False)
+        self.assertEqual(1, result)
+        with self.assertRaises(Exception):
+            result = gdc.store(data=l[1], start_with_alpha=False)
+
+    def test_generic_data_container_list_no_validator_list_contains_various_types(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=list)
+        l = ['Item 1', 1, Decimal('0.0')]
+        qty = 0
+        for item in l:
+            qty = qty + 1
+            result = gdc.store(data=item, start_with_alpha=False)
+            self.assertEqual(qty, result, 'Item "{}" failed to be stored'.format(qty))
 
 class TestGenericIOProcessor(unittest.TestCase):
 

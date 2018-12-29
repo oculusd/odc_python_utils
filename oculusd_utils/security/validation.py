@@ -94,14 +94,19 @@ class StringDataValidator(DataValidator):
         can_be_none = False
         if 'min_length' in kwarg:
             min_length = kwarg['min_length']
+            self.logger.debug('min_length set in kwarg - value: "{}"'.format(min_length))
         if 'max_length' in kwarg:
             max_length = kwarg['max_length']
+            self.logger.debug('max_length set in kwarg - value: "{}"'.format(max_length))
         if 'start_with_alpha' in kwarg:
             start_with_alpha = kwarg['start_with_alpha']
+            self.logger.debug('start_with_alpha set in kwarg - value: "{}"'.format(start_with_alpha))
         if 'contain_at_least_one_space' in kwarg:
             contain_at_least_one_space = kwarg['contain_at_least_one_space']
+            self.logger.debug('contain_at_least_one_space set in kwarg - value: "{}"'.format(contain_at_least_one_space))
         if 'can_be_none' in kwarg:
             can_be_none = kwarg['can_be_none']
+            self.logger.debug('can_be_none set in kwarg - value: "{}"'.format(can_be_none))
         return validate_string(
             input_str=data,
             min_length=min_length,

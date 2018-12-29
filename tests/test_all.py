@@ -92,6 +92,9 @@ def suite():
     suite.addTest(TestGenericDataContainer('test_generic_data_container_string_with_string_validator_and_invalid_string_must_raise_exception'))
     suite.addTest(TestGenericDataContainer('test_generic_data_container_string_with_no_validator_and_valid_string'))
     suite.addTest(TestGenericDataContainer('test_generic_data_container_string_with_no_validator_and_valid_none_store'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_list_with_string_validator_and_valid_strings'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_list_with_string_validator_and_one_invalid_object_must_raise_exception'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_list_no_validator_list_contains_various_types'))
 
     suite.addTest(TestGenericIOProcessor('test_init_generic_io_processor'))
 

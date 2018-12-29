@@ -97,9 +97,7 @@ class GenericDataContainer:
             if isinstance(self.data_validator, DataValidator):
                 if not self.data_validator.validate(data=data, **kwarg):
                     raise Exception('List item validation failed')
-                self.logger('Validation for value passed. New list size: {}'.format(len(self.data)+1))
-            else:
-                self.logger.warning('No DataValidator set - List value stored without validation! [2]. New list size: {}'.format(len(self.data)+1))
+                self.logger.debug('Validation for value passed. New list size: {}'.format(len(self.data)+1))
         else:
             self.logger.warning('No DataValidator set - List value stored without validation! [2]. New list size: {}'.format(len(self.data)+1))
         self.data.append(data)
