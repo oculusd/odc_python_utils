@@ -12,14 +12,14 @@ Usage
 
 ::
 
-    $ coverage run  --omit="*tests*" -m tests.test_all
+    $ coverage run  --omit="*tests*","oculusd_utils/__init__.py" -m tests.test_all
     $ coverage report -m
 """
 
 import unittest
 from tests.test_logging import TestOculusDLogger
 from tests.test_security import TestInitFunctions
-from tests.test_validation import TestEmailValidation, TestStringValidation
+from tests.test_validation import TestEmailValidation, TestStringValidation, TestDataValidator, TestStringDataValidator
 
 
 def suite():
@@ -54,6 +54,24 @@ def suite():
     suite.addTest(TestStringValidation('test_validate_string_does_not_start_with_alpha_but_with_space'))
     suite.addTest(TestStringValidation('test_validate_string_fail_to_contain_at_least_one_space'))
     suite.addTest(TestStringValidation('test_validate_string_contains_at_least_one_space'))
+
+    suite.addTest(TestDataValidator('test_init_data_validator'))
+    suite.addTest(TestDataValidator('test_validation_fails'))
+
+    suite.addTest(TestStringDataValidator('test_init_string_data_validator'))
+    suite.addTest(TestStringDataValidator('test_string_data_validator_short_string_all_defaults'))
+    suite.addTest(TestStringDataValidator('test_string_data_validator_data_container_all_defaults'))
+    suite.addTest(TestStringDataValidator('test_string_data_validator_short_string_with_min_and_max_lengths'))
+    suite.addTest(TestStringDataValidator('test_string_data_validator_short_string_with_min_and_max_lengths_fail_string_to_short'))
+    suite.addTest(TestStringDataValidator('test_string_data_validator_short_string_with_min_and_max_lengths_fail_string_to_long'))
+    suite.addTest(TestStringDataValidator('test_string_data_validator_short_string_with_start_with_alpha'))
+    suite.addTest(TestStringDataValidator('test_string_data_validator_short_string_with_start_with_alpha_but_start_with_space'))
+    suite.addTest(TestStringDataValidator('test_string_data_validator_short_string_with_start_with_alpha_but_start_with_numeric'))
+    suite.addTest(TestStringDataValidator('test_string_data_validator_short_string_with_can_be_none_is_true'))
+    suite.addTest(TestStringDataValidator('test_string_data_validator_none_value_with_can_be_none_is_true'))
+    suite.addTest(TestStringDataValidator('test_string_data_validator_short_string_with_contain_at_least_one_space'))
+    suite.addTest(TestStringDataValidator('test_string_data_validator_none_value_with_contain_at_least_one_space_but_doesnt'))
+    suite.addTest(TestStringDataValidator('test_string_data_validator_short_string_with_start_with_alpha_and_start_with_space'))
 
     return suite
 

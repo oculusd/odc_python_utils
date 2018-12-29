@@ -9,12 +9,13 @@ Usage with coverage:
 
 ::
 
-    $ coverage run --omit="oculusd_utils/__init__.py,oculusd_utils/security/__init__.py"  -m tests.test_validation
+    $ coverage run --omit="*tests*","oculusd_utils/__init__.py,oculusd_utils/persistence/__init__.py,oculusd_utils/security/__init__.py" -m tests.test_validation
     $ coverage report -m
 """
 
 import unittest
-from oculusd_utils.security.validation import is_valid_email, validate_string
+from oculusd_utils.security.validation import is_valid_email, validate_string, DataValidator, StringDataValidator
+from oculusd_utils.persistence import GenericDataContainer
 
 
 class TestEmailValidation(unittest.TestCase):
@@ -108,6 +109,127 @@ class TestStringValidation(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertIsInstance(result, bool)
         self.assertTrue(result)
+
+
+class TestDataValidator(unittest.TestCase):
+
+    def setUp(self):
+        self.short_str = 'abc'
+
+    def test_init_data_validator(self):
+        dv = DataValidator()
+        self.assertIsNotNone(dv)
+        self.assertIsInstance(dv, DataValidator)
+
+    def test_validation_fails(self):
+        dv = DataValidator()
+        result = dv.validate(data=self.short_str)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
+
+class TestStringDataValidator(unittest.TestCase):
+
+    def setUp(self):
+        self.short_str = 'abc'
+
+    def test_init_string_data_validator(self):
+        sdv = StringDataValidator()
+        self.assertIsNotNone(sdv)
+        self.assertIsInstance(sdv, DataValidator)
+        self.assertIsInstance(sdv, StringDataValidator)
+
+    def test_string_data_validator_short_string_all_defaults(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=self.short_str)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
+
+    def test_string_data_validator_data_container_all_defaults(self):
+        self.data_container = GenericDataContainer(result_set_name='Test', data_type=str, data_validator=StringDataValidator())
+        result = self.data_container.store(data=self.short_str)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, int)
+        self.assertEqual(len(self.short_str), result)
+
+    def test_string_data_validator_short_string_with_min_and_max_lengths(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=self.short_str, min_length=2, max_length=5)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
+
+    def test_string_data_validator_short_string_with_min_and_max_lengths_fail_string_to_short(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=self.short_str, min_length=4, max_length=10)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
+    def test_string_data_validator_short_string_with_min_and_max_lengths_fail_string_to_long(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=self.short_str, min_length=1, max_length=2)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
+    def test_string_data_validator_short_string_with_start_with_alpha(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=self.short_str, min_length=2, max_length=5)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
+
+    def test_string_data_validator_short_string_with_start_with_alpha_but_start_with_space(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=' {}'.format(self.short_str), start_with_alpha=True)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
+    def test_string_data_validator_short_string_with_start_with_alpha_and_start_with_space(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=' {}'.format(self.short_str), start_with_alpha=False)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
+
+    def test_string_data_validator_short_string_with_start_with_alpha_but_start_with_numeric(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data='1{}'.format(self.short_str), start_with_alpha=True)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
+    def test_string_data_validator_short_string_with_can_be_none_is_true(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=self.short_str, can_be_none=True)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
+
+    def test_string_data_validator_none_value_with_can_be_none_is_true(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=None, can_be_none=True)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
+
+    def test_string_data_validator_short_string_with_contain_at_least_one_space(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=' {}'.format(self.short_str), contain_at_least_one_space=True, start_with_alpha=False)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
+
+    def test_string_data_validator_none_value_with_contain_at_least_one_space_but_doesnt(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=self.short_str, contain_at_least_one_space=True)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
 
 
 if __name__ == '__main__':

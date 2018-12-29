@@ -49,4 +49,67 @@ def validate_string(
             return False
     return True
 
+
+class DataValidator:
+    """The DataValidator base class must be extended with specific data type validation classes
+    """
+
+    def __init__(self, logger=L):
+        """Initialise with an optional logger
+
+        :param logger: OculusDLogger (default=OculusDLogger())
+        """
+        self.logger = logger
+
+    def validate(self, data: object, **kwarg)->bool:
+        """This method must be implemented/overridden by the class extending from this base class.
+
+        :param data: object containing data to be validated
+        
+        :returns: bool with True mening validation passed and False meaning validation failed (do not trust the data!)
+        """
+        self.logger.error('You need to implement the logic for this method! Fail safely principle applied - returning False')
+        return False
+
+
+class StringDataValidator(DataValidator):
+
+    def __init__(self, logger=L):
+        super().__init__(logger=logger)
+
+    def validate(self, data: object, **kwarg)->bool:
+        """Checks against def validate_string()
+
+        Optional keyword arguments with the default values:
+            min_length: int=1,
+            max_length: int=255,
+            start_with_alpha: bool=True,
+            contain_at_least_one_space: bool=False,
+            can_be_none: bool=False
+        """
+        min_length = 1
+        max_length = 255
+        start_with_alpha = True
+        contain_at_least_one_space = False
+        can_be_none = False
+        if 'min_length' in kwarg:
+            min_length = kwarg['min_length']
+        if 'max_length' in kwarg:
+            max_length = kwarg['max_length']
+        if 'start_with_alpha' in kwarg:
+            start_with_alpha = kwarg['start_with_alpha']
+        if 'contain_at_least_one_space' in kwarg:
+            contain_at_least_one_space = kwarg['contain_at_least_one_space']
+        if 'can_be_none' in kwarg:
+            can_be_none = kwarg['can_be_none']
+        return validate_string(
+            input_str=data,
+            min_length=min_length,
+            max_length=max_length,
+            start_with_alpha=start_with_alpha,
+            contain_at_least_one_space=contain_at_least_one_space,
+            can_be_none=can_be_none
+        )
+
+
 # EOF
