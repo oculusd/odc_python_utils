@@ -16,6 +16,18 @@ Usage with coverage:
 import unittest
 from oculusd_utils.persistence import GenericDataContainer, GenericIOProcessor, GenericIO, TextFileIO
 from decimal import Decimal
+from oculusd_utils.security.validation import DataValidator, L, StringDataValidator
+
+
+class DictValueNotNoneDataValidator(DataValidator):
+    def __init__(self, logger=L):
+        self.logger = logger
+
+    def validate(self, data: object, **kwarg)->bool:
+        if data is not None:
+            return True
+        self.logger.error('Data value must be set')
+        return False
 
 
 class TestGenericDataContainer(unittest.TestCase):
@@ -37,6 +49,7 @@ class TestGenericDataContainer(unittest.TestCase):
         self.assertEqual('list', gdc.data_type.__name__)
 
     def test_init_generic_data_container_tuple(self):
+        # NOTE: Before a tuple is added (store() called), the data_type must be a list... Just roll with it!
         gdc = GenericDataContainer(result_set_name='Test', data_type=list)
         self.assertEqual('list', gdc.data_type.__name__)
 
@@ -100,6 +113,61 @@ class TestGenericDataContainer(unittest.TestCase):
         result = gdc.store(data='New Value', key='TestKey1')
         self.assertTrue(result == 3)
         self.assertEqual('New Value', gdc.data['TestKey1'])
+
+    def test_generic_data_container_dict_with_custom_dict_data_validator(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=dict, data_validator=DictValueNotNoneDataValidator())
+        self.assertEqual('dict', gdc.data_type.__name__)
+        d = {
+            'TestKey1': 1001,
+            'TestKey2': 'Test Value',
+            'TestKey3': Decimal('100'),
+        }
+        item_nr = 0
+        for key, val in d.items():
+            item_nr = item_nr + 1
+            result = gdc.store(data=val, key=key)
+            self.assertEqual(item_nr, result, 'Key "{}" failed to be added'.format(key))
+            self.assertTrue(key in gdc.data, 'Key "{}" not found'.format(key))
+        self.assertEqual(d['TestKey1'], gdc.data['TestKey1'])
+        self.assertEqual(d['TestKey2'], gdc.data['TestKey2'])
+        self.assertIsInstance(d['TestKey3'], Decimal)
+    
+    def test_generic_data_container_dict_with_custom_dict_data_validator_force_validation_exception(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=dict, data_validator=DictValueNotNoneDataValidator())
+        self.assertEqual('dict', gdc.data_type.__name__)
+        d = {
+            'TestKey1': 1001,
+            'TestKey2': 'Test Value',
+            'TestKey3': Decimal('100'),
+        }
+        item_nr = 0
+        for key, val in d.items():
+            item_nr = item_nr + 1
+            result = gdc.store(data=val, key=key)
+        with self.assertRaises(Exception):
+            gdc.store(data=None, key='TheInfamousAnyKey')
+
+    def test_generic_data_container_dict_with_dict_validator_not_of_the_expected_type_must_raise_exception(self):
+        with self.assertRaises(Exception):
+            gdc = GenericDataContainer(result_set_name='Test', data_type=dict, data_validator='Definitely an invalid validator instance!')
+
+    def test_generic_data_container_string_with_string_validator_and_invalid_string_must_raise_exception(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=str, data_validator=StringDataValidator())
+        input_str = ' abc'
+        with self.assertRaises(Exception):
+            gdc.store(data=input_str, start_with_alpha=True)
+
+    def test_generic_data_container_string_with_no_validator_and_valid_string(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=str)
+        gdc.store(data='abc')
+        self.assertIsNotNone(gdc.data)
+        self.assertIsInstance(gdc.data, str)
+        self.assertEqual('abc', gdc.data)
+
+    def test_generic_data_container_string_with_no_validator_and_valid_none_store(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=str)
+        gdc.store(data=None)
+        self.assertIsNone(gdc.data)        
         
 
 class TestGenericIOProcessor(unittest.TestCase):

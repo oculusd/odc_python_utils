@@ -86,6 +86,12 @@ def suite():
     suite.addTest(TestGenericDataContainer('test_generic_data_container_dict_test01'))
     suite.addTest(TestGenericDataContainer('test_generic_data_container_dict_omit_key_expect_exception'))
     suite.addTest(TestGenericDataContainer('test_generic_data_container_dict_override_key_with_new_value'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_dict_with_custom_dict_data_validator'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_dict_with_custom_dict_data_validator_force_validation_exception'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_dict_with_dict_validator_not_of_the_expected_type_must_raise_exception'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_string_with_string_validator_and_invalid_string_must_raise_exception'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_string_with_no_validator_and_valid_string'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_string_with_no_validator_and_valid_none_store'))
 
     suite.addTest(TestGenericIOProcessor('test_init_generic_io_processor'))
 

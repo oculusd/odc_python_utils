@@ -58,7 +58,7 @@ class GenericDataContainer:
         self.logger = logger
         self.result_set_name = result_set_name
 
-    def _strore_dict(self, data: object, key: object, **kwarg)->int:
+    def _store_dict(self, data: object, key: object, **kwarg)->int:
         if key is None:
             raise Exception('Expected a key value but found None (data_type was set to dict)')
         if key in self.data:
@@ -67,15 +67,16 @@ class GenericDataContainer:
             if isinstance(self.data_validator, DataValidator):
                 if not self.data_validator.validate(data=data, **kwarg):
                     raise Exception('Dictionary validation failed')
-                self.logger('Validation for value passed. key="{}"'.format(key))
+                self.logger.info('Validation for value passed. key="{}"'.format(key))
             else:
-                self.logger.warning('No DataValidator set - Dictionary value for key "{}" stored without validation! [2]'.format(key))
+                # FIXME: The code below should be unreachable. Further scenarios in testing should be explored.
+                self.logger.warning('No DataValidator set - Dictionary value for key "{}" stored without validation! [2]'.format(key)) # pragma: no cover
         else:
             self.logger.warning('No DataValidator set - Dictionary value for key "{}" stored without validation! [1]'.format(key))
         self.data[key] = data
         return len(self.data)
 
-    def _strore_str(self, data: object, key: object=None, **kwarg)->int:
+    def _store_str(self, data: object, key: object=None, **kwarg)->int:
         validated = False
         if self.data_validator is not None:
             if isinstance(self.data_validator, StringDataValidator):
@@ -86,6 +87,7 @@ class GenericDataContainer:
         if not validated:
             if data is None:
                 self.data = None
+                return 0
             else:
                 self.data = '{}'.format(data)
         return len(self.data)
@@ -165,9 +167,9 @@ class GenericDataContainer:
 
     def store(self, data: object, key: object=None, **kwarg)->int:
         if self.data_type.__name__ == 'dict':
-            return self._strore_dict(data=data, key=key, **kwarg)
+            return self._store_dict(data=data, key=key, **kwarg)
         elif self.data_type.__name__ == 'str':
-            return self._strore_str(data=data, key=key, **kwarg)
+            return self._store_str(data=data, key=key, **kwarg)
         elif self.data_type.__name__ == 'list':
             return self._store_list(data=data, key=key, **kwarg)
         elif self.data_type.__name__ == 'tuple':
