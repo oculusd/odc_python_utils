@@ -114,6 +114,10 @@ def suite():
     suite.addTest(TestNumberDataValidator('test_number_data_validator_int_input_with_validator_params_expect_pass'))
     suite.addTest(TestNumberDataValidator('test_number_data_validator_float_input_no_validator_params'))
     suite.addTest(TestNumberDataValidator('test_number_data_validator_float_input_with_validator_params_expect_pass'))
+    suite.addTest(TestNumberDataValidator('test_number_data_validator_str_input_no_validator_params'))
+    suite.addTest(TestNumberDataValidator('test_number_data_validator_str_input_with_validator_params_expect_pass'))
+    suite.addTest(TestNumberDataValidator('test_number_data_validator_decimal_input_no_validator_params'))
+    suite.addTest(TestNumberDataValidator('test_number_data_validator_decimal_input_with_validator_params_expect_pass'))
 
     return suite
 

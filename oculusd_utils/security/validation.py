@@ -126,11 +126,19 @@ class NumberDataValidator(DataValidator):
     def _validate_decimal(self, data: object, **kwarg)->bool:
         if 'min_value' in kwarg:
             if isinstance(kwarg['min_value'], Decimal):
-                # TODO: Eval data Decimal agains min_value Decimal
-                pass
+                if data.compare(kwarg['min_value']) < 0:
+                    self.logger.error('Decimal validation failed: data "{}" is less than "{}"',format(data, kwarg['min_value']))
+                    return False
             else:
                 raise Exception('min_value parameter must be a Decimal')
-        # TODO: Complete...
+        if 'max_value' in kwarg:
+            if isinstance(kwarg['max_value'], Decimal):
+                if data.compare(kwarg['max_value']) > 0:
+                    self.logger.error('Decimal validation failed: data "{}" is less than "{}"',format(data, kwarg['max_value']))
+                    return False
+            else:
+                raise Exception('min_value parameter must be a Decimal')
+        return True
 
     def _validate_int(self, data: object, **kwarg)->bool:
         if 'min_value' in kwarg:
