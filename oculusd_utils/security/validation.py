@@ -7,6 +7,7 @@
 import re
 import traceback
 from oculusd_utils import OculusDLogger
+from decimal import Decimal
 
 
 L = OculusDLogger()
@@ -116,5 +117,68 @@ class StringDataValidator(DataValidator):
             can_be_none=can_be_none
         )
 
+
+class NumberDataValidator(DataValidator):
+
+    def __init__(self, logger=L):
+        super().__init__(logger=logger)
+
+    def _validate_decimal(self, data: object, **kwarg)->bool:
+        if 'min_value' in kwarg:
+            if isinstance(kwarg['min_value'], Decimal):
+                # TODO: Eval data Decimal agains min_value Decimal
+                pass
+            else:
+                raise Exception('min_value parameter must be a Decimal')
+        # TODO: Complete...
+
+    def _validate_int(self, data: object, **kwarg)->bool:
+        if 'min_value' in kwarg:
+            if data < kwarg['min_value']:
+                self.logger.error('Number validation failed: data "{}" is less than "{}"',format(data, kwarg['min_value']))
+                return False
+        if 'max_value' in kwarg:
+            if data > kwarg['max_value']:
+                self.logger.error('Number validation failed: data "{}" is more than "{}"',format(data, kwarg['min_value']))
+                return False
+        return True
+
+    def _validate_str(self, data: object, **kwarg)->bool:
+        """If the input data is a str, validate the str number value as a Decimal
+
+        Decimal evaluation will be performed performed thus the input validation parameters must also be converted to Decimal values if supplied
+        """
+        params = dict()
+        if 'min_value' in kwarg:
+            if isinstance(kwarg['min_value'], Decimal):
+                params['min_value'] = kwarg['min_value']
+            else:
+                params['min_value'] = Decimal(kwarg['min_value'])
+        if 'max_value' in kwarg:
+            if isinstance(kwarg['max_value'], Decimal):
+                params['max_value'] = kwarg['max_value']
+            else:
+                params['max_value'] = Decimal(kwarg['max_value'])
+        return self._validate_decimal(data=Decimal(data), **params)
+
+    def validate(self, data: object, **kwarg)->bool:
+        """Basic number validation
+
+        At minimum the input data must be a type that represents a number or that can be converted into a number
+
+        Keyword Arguments:
+
+        :param min_value: int if set will check the input number is bigger than ths value (non-inclusive test)
+        :param max_value: int if set will check the input number is smaller than ths value (non-inclusive test)
+        """
+        if isinstance(data, Decimal):
+            return self._validate_decimal(data=data, **kwarg)
+        if isinstance(data, int):
+            return self._validate_int(data=data, **kwarg)
+        if isinstance(data, float):
+            return self._validate_int(data=data, **kwarg) # We can use the same logic as for int...
+        if isinstance(data, str):
+            return self._validate_str(data=data, **kwarg)
+        raise Exception('Unsupported number type')
 
 # EOF

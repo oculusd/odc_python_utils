@@ -126,14 +126,21 @@ class GenericDataContainer:
         return len(self.data)
 
     def _store_int(self, data: object, key: object=None, **kwarg)->int:
+        if type(data).__name__ not in ('int', 'list', 'str'):
+            raise Exception('Expecting a int, float or str but got "{}"'.format(type(data)))
+        tmp_value = None
         if isinstance(data, str):
-            self.data = int(float(data))
+            tmp_value = int(float(data))
         elif isinstance(data, float):
-            self.data = int(data)
+            tmp_value = int(data)
         elif isinstance(data, int):
-            self.data = data
+            tmp_value = data
         else:
             raise Exception('Could not convert input data to int')
+        if self.data_validator is not None:
+            # TODO: Validate tmp_value
+            raise Exception('Int validation not yet supported')
+        self.data = tmp_value
         return 1
 
     def _store_float(self, data: object, key: object=None, **kwarg)->int:

@@ -231,6 +231,12 @@ class TestGenericDataContainer(unittest.TestCase):
         with self.assertRaises(Exception):
             gdc.store(data=l2, start_with_alpha=False)
 
+    def test_generic_data_container_int_with_no_validator_and_valid_int(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=int)
+        l = 1001
+        result = gdc.store(data=l)
+        self.assertEqual(1, result)
+
 
 class TestGenericIOProcessor(unittest.TestCase):
 

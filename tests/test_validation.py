@@ -14,8 +14,9 @@ Usage with coverage:
 """
 
 import unittest
-from oculusd_utils.security.validation import is_valid_email, validate_string, DataValidator, StringDataValidator
+from oculusd_utils.security.validation import is_valid_email, validate_string, DataValidator, StringDataValidator, NumberDataValidator
 from oculusd_utils.persistence import GenericDataContainer
+import random
 
 
 class TestEmailValidation(unittest.TestCase):
@@ -231,6 +232,65 @@ class TestStringDataValidator(unittest.TestCase):
         self.assertIsInstance(result, bool)
         self.assertFalse(result)
 
+
+class TestNumberDataValidator(unittest.TestCase):
+
+    def setUp(self):
+        self.positive_float = random.uniform(0.0, 100.5)
+        self.negative_float = random.uniform(-0.00001, -100.5)
+        self.positive_int = random.randint(0, 1000)
+        self.negative_int = random.randint(0, 1000) * -1
+        self.float_as_str = '{}'.format(self.positive_float)
+
+    def test_init_number_data_validator(self):
+        v = NumberDataValidator()
+        self.assertIsNotNone(v)
+        self.assertIsInstance(v, NumberDataValidator)
+
+    def test_number_data_validator_int_input_no_validator_params(self):
+        v = NumberDataValidator()
+        result_pos_number = v.validate(data=self.positive_int)
+        self.assertIsNotNone(result_pos_number)
+        self.assertIsInstance(result_pos_number, bool)
+        self.assertTrue(result_pos_number)
+        result_neg_number = v.validate(data=self.negative_int)
+        self.assertIsNotNone(result_neg_number)
+        self.assertIsInstance(result_neg_number, bool)
+        self.assertTrue(result_neg_number)
+        result_zero = v.validate(data=0)
+        self.assertIsNotNone(result_zero)
+        self.assertIsInstance(result_zero, bool)
+        self.assertTrue(result_zero)
+
+    def test_number_data_validator_int_input_with_validator_params_expect_pass(self):
+        v = NumberDataValidator()
+        result_pos_number = v.validate(data=self.positive_int, min_value=self.positive_int-1, max_value=self.positive_int+1)
+        self.assertIsNotNone(result_pos_number)
+        self.assertIsInstance(result_pos_number, bool)
+        self.assertTrue(result_pos_number)
+
+    def test_number_data_validator_float_input_no_validator_params(self):
+        v = NumberDataValidator()
+        result_pos_number = v.validate(data=self.positive_float)
+        self.assertIsNotNone(result_pos_number)
+        self.assertIsInstance(result_pos_number, bool)
+        self.assertTrue(result_pos_number)
+        result_neg_number = v.validate(data=self.positive_float)
+        self.assertIsNotNone(result_neg_number)
+        self.assertIsInstance(result_neg_number, bool)
+        self.assertTrue(result_neg_number)
+        result_zero = v.validate(data=0.0)
+        self.assertIsNotNone(result_zero)
+        self.assertIsInstance(result_zero, bool)
+        self.assertTrue(result_zero)
+
+    def test_number_data_validator_float_input_with_validator_params_expect_pass(self):
+        v = NumberDataValidator()
+        result_pos_number = v.validate(data=self.positive_float, min_value=self.positive_float-0.0001, max_value=self.positive_float+0.0001)
+        self.assertIsNotNone(result_pos_number)
+        self.assertIsInstance(result_pos_number, bool)
+        self.assertTrue(result_pos_number)
+        
 
 if __name__ == '__main__':
     unittest.main()

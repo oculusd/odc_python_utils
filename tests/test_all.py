@@ -19,7 +19,7 @@ Usage
 import unittest
 from tests.test_logging import TestOculusDLogger
 from tests.test_security import TestInitFunctions
-from tests.test_validation import TestEmailValidation, TestStringValidation, TestDataValidator, TestStringDataValidator
+from tests.test_validation import TestEmailValidation, TestStringValidation, TestDataValidator, TestStringDataValidator, TestNumberDataValidator
 from tests.test_persistence import TestGenericDataContainer, TestGenericIOProcessor, TestGenericIO, TestTextFileIO
 
 
@@ -101,12 +101,19 @@ def suite():
     suite.addTest(TestGenericDataContainer('test_generic_data_container_tuple_with_string_validator_and_data_validation_fail_expecting_exception'))
     suite.addTest(TestGenericDataContainer('test_generic_data_container_tuple_with_no_validator_and_valid_list'))
     suite.addTest(TestGenericDataContainer('test_generic_data_container_tuple_with_no_validator_and_valid_list_add_another_item_expecting_exception'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_int_with_no_validator_and_valid_int'))
 
     suite.addTest(TestGenericIOProcessor('test_init_generic_io_processor'))
 
     suite.addTest(TestGenericIO('test_init_generic_io'))
 
     suite.addTest(TestTextFileIO('test_init_text_file_io'))
+
+    suite.addTest(TestNumberDataValidator('test_init_number_data_validator'))
+    suite.addTest(TestNumberDataValidator('test_number_data_validator_int_input_no_validator_params'))
+    suite.addTest(TestNumberDataValidator('test_number_data_validator_int_input_with_validator_params_expect_pass'))
+    suite.addTest(TestNumberDataValidator('test_number_data_validator_float_input_no_validator_params'))
+    suite.addTest(TestNumberDataValidator('test_number_data_validator_float_input_with_validator_params_expect_pass'))
 
     return suite
 
