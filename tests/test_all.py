@@ -95,6 +95,12 @@ def suite():
     suite.addTest(TestGenericDataContainer('test_generic_data_container_list_with_string_validator_and_valid_strings'))
     suite.addTest(TestGenericDataContainer('test_generic_data_container_list_with_string_validator_and_one_invalid_object_must_raise_exception'))
     suite.addTest(TestGenericDataContainer('test_generic_data_container_list_no_validator_list_contains_various_types'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_tuple_with_string_validator_and_valid_strings'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_tuple_with_string_validator_and_null_data_expecting_exception'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_tuple_with_string_validator_and_unsupported_data_expecting_exception'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_tuple_with_string_validator_and_data_validation_fail_expecting_exception'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_tuple_with_no_validator_and_valid_list'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_tuple_with_no_validator_and_valid_list_add_another_item_expecting_exception'))
 
     suite.addTest(TestGenericIOProcessor('test_init_generic_io_processor'))
 

@@ -195,6 +195,43 @@ class TestGenericDataContainer(unittest.TestCase):
             result = gdc.store(data=item, start_with_alpha=False)
             self.assertEqual(qty, result, 'Item "{}" failed to be stored'.format(qty))
 
+    def test_generic_data_container_tuple_with_string_validator_and_valid_strings(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=tuple, data_validator=StringDataValidator())
+        l = ('Item 1', 'Item 2', )
+        result = gdc.store(data=l, start_with_alpha=False)
+        self.assertEqual(len(l), result, 'Item "{}" failed to be stored'.format(len(l)))
+
+    def test_generic_data_container_tuple_with_string_validator_and_null_data_expecting_exception(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=tuple, data_validator=StringDataValidator())
+        with self.assertRaises(Exception):
+            gdc.store(data=None, start_with_alpha=False)
+
+    def test_generic_data_container_tuple_with_string_validator_and_unsupported_data_expecting_exception(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=tuple, data_validator=StringDataValidator())
+        with self.assertRaises(Exception):
+            gdc.store(data='This must fail', start_with_alpha=False)
+
+    def test_generic_data_container_tuple_with_string_validator_and_data_validation_fail_expecting_exception(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=tuple, data_validator=StringDataValidator())
+        l = ('Item 1', 'Item 2', 3, )
+        with self.assertRaises(Exception):
+            gdc.store(data=l, start_with_alpha=False)
+
+    def test_generic_data_container_tuple_with_no_validator_and_valid_list(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=tuple)
+        l = ['Item 1', 'Item 2', ]
+        result = gdc.store(data=l, start_with_alpha=False)
+        self.assertEqual(len(l), result, 'Item "{}" failed to be stored'.format(len(l)))
+
+    def test_generic_data_container_tuple_with_no_validator_and_valid_list_add_another_item_expecting_exception(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=tuple)
+        l = ['Item 1', 'Item 2', ]
+        l2 = ['Item 3', 'Item 4', ]
+        result = gdc.store(data=l, start_with_alpha=False)
+        with self.assertRaises(Exception):
+            gdc.store(data=l2, start_with_alpha=False)
+
+
 class TestGenericIOProcessor(unittest.TestCase):
 
     def test_init_generic_io_processor(self):

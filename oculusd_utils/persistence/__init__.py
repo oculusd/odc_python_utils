@@ -106,28 +106,21 @@ class GenericDataContainer:
     def _store_tuple(self, data: object, key: object=None, **kwarg)->int:
         if data is None:
             raise Exception('Input data cannot be None - expecting a list or tuple')
-        if not isinstance(data, list) or not isinstance(data, tuple):
+        if type(data).__name__ not in ('list', 'tuple'):
             raise Exception('Expecting a list or tuple but got "{}"'.format(type(data)))
         if self.data_validator is not None:
-            if isinstance(self.data_validator, DataValidator):
-                item_index = 0
-                for item in data:
-                    if not self.data_validator.validate(data=data, **kwarg):
-                        raise Exception('List item validation failed on item number {}'.format(item_index))
-                    item_index = item_index + 1
-                self.logger('Validation for value passed. New list size: {}'.format(len(self.data)+1))
-            else:
-                self.logger.warning('No DataValidator set - List value stored without validation! [2]. New list size: {}'.format(len(self.data)+1))
-        else:
-            self.logger.warning('No DataValidator set - List value stored without validation! [2]. New list size: {}'.format(len(self.data)+1))
+            item_index = 0
+            for item in data:
+                if not self.data_validator.validate(data=item, **kwarg):
+                    raise Exception('List item validation failed on item number {}'.format(item_index))
+                item_index = item_index + 1
+            self.logger.info('Validation for value passed. New list size: {}'.format(len(self.data)+1))
         if len(self.data) == 0 and type(self.data).__name__ == 'list':
             if type(data).__name__ == 'list':
                 self.data = data
                 self.data = tuple(self.data)
             elif type(data).__name__ == 'tuple':
                 self.data = data
-            else:
-                raise Exception('Input data must be either a list or tuple type. The result will be stored as a tuple.')
         else:
             raise Exception('Tuple already set. You have to create another GenericDataContainer instance to store another tuple')
         return len(self.data)
