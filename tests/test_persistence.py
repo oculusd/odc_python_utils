@@ -390,7 +390,22 @@ class TestGenericIOProcessor(unittest.TestCase):
 class TestGenericIO(unittest.TestCase):
 
     def test_init_generic_io(self):
-        self.fail('No test code implemented yet')
+        gio = GenericIO(uri='a_file.txt')
+        self.assertIsNotNone(gio)
+        self.assertIsInstance(gio, GenericIO)
+        self.assertEqual('a_file.txt', gio.uri)
+
+    def test_generic_io_read_unimplemented_exception(self):
+        gio = GenericIO(uri='a_file.txt')
+        with self.assertRaises(Exception):
+            gio.read()
+
+    def test_generic_io_write_unimplemented_exception(self):
+        gio = GenericIO(uri='a_file.txt')
+        gdc = GenericDataContainer(data_type=str)
+        gdc.store(data='Some Data')
+        with self.assertRaises(Exception):
+            gio.write(data=gdc)
 
 
 class TestTextFileIO(unittest.TestCase):

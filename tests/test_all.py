@@ -128,6 +128,8 @@ def suite():
     suite.addTest(TestGenericIOProcessor('test_generic_io_processor_process_expect_exception'))
 
     suite.addTest(TestGenericIO('test_init_generic_io'))
+    suite.addTest(TestGenericIO('test_generic_io_read_unimplemented_exception'))
+    suite.addTest(TestGenericIO('test_generic_io_write_unimplemented_exception'))
 
     suite.addTest(TestTextFileIO('test_init_text_file_io'))
 
