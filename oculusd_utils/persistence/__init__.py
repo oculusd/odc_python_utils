@@ -5,7 +5,7 @@
 # https://www.gnu.org/licenses/lgpl-3.0.txt
 
 from oculusd_utils import OculusDLogger, get_utc_timestamp
-from oculusd_utils.security.validation import DataValidator, StringDataValidator
+from oculusd_utils.security.validation import DataValidator, StringDataValidator, NumberDataValidator
 import pathlib
 import os
 import json
@@ -126,8 +126,8 @@ class GenericDataContainer:
         return len(self.data)
 
     def _store_int(self, data: object, key: object=None, **kwarg)->int:
-        if type(data).__name__ not in ('int', 'list', 'str'):
-            raise Exception('Expecting a int, float or str but got "{}"'.format(type(data)))
+        if type(data).__name__ not in ('int', 'float', 'str'):
+            raise Exception('Expecting a int, float or str but got "{}"'.format(type(data).__name__))
         tmp_value = None
         if isinstance(data, str):
             tmp_value = int(float(data))
@@ -135,12 +135,13 @@ class GenericDataContainer:
             tmp_value = int(data)
         elif isinstance(data, int):
             tmp_value = data
-        else:
-            raise Exception('Could not convert input data to int')
-        if self.data_validator is not None:
-            # TODO: Validate tmp_value
-            raise Exception('Int validation not yet supported')
         self.data = tmp_value
+        if self.data_validator is not None:
+            if isinstance(self.data_validator, NumberDataValidator):
+                if self.data_validator.validate(data=self.data, **kwarg) is False:
+                    raise Exception('Input validation failed')
+            else:
+                raise Exception('Expected a NumberDataValidator')
         return 1
 
     def _store_float(self, data: object, key: object=None, **kwarg)->int:
@@ -152,6 +153,12 @@ class GenericDataContainer:
             self.data = data
         else:
             raise Exception('Could not convert input data to float')
+        if self.data_validator is not None:
+            if isinstance(self.data_validator, NumberDataValidator):
+                if self.data_validator.validate(data=self.data, **kwarg) is False:
+                    raise Exception('Input validation failed') 
+            else:
+                raise Exception('Expected a NumberDataValidator')
         return 1
 
     def _store_decimal(self, data: object, key: object=None, **kwarg)->int:
@@ -161,6 +168,12 @@ class GenericDataContainer:
             self.data = data
         else:
             raise Exception('Could not convert input data to Decimal')
+        if self.data_validator is not None:
+            if isinstance(self.data_validator, NumberDataValidator):
+                if self.data_validator.validate(data=self.data, **kwarg) is False:
+                    raise Exception('Input validation failed')
+            else:
+                raise Exception('Expected a NumberDataValidator')
         return 1
 
     def store(self, data: object, key: object=None, **kwarg)->int:

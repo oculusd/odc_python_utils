@@ -176,8 +176,8 @@ class NumberDataValidator(DataValidator):
 
         Keyword Arguments:
 
-        :param min_value: int if set will check the input number is bigger than ths value (non-inclusive test)
-        :param max_value: int if set will check the input number is smaller than ths value (non-inclusive test)
+        :param min_value: int/float/Decimal if set will check the input number is bigger than ths value (non-inclusive test)
+        :param max_value: int/float/Decimal if set will check the input number is smaller than ths value (non-inclusive test)
         """
         if isinstance(data, Decimal):
             return self._validate_decimal(data=data, **kwarg)

@@ -102,6 +102,18 @@ def suite():
     suite.addTest(TestGenericDataContainer('test_generic_data_container_tuple_with_no_validator_and_valid_list'))
     suite.addTest(TestGenericDataContainer('test_generic_data_container_tuple_with_no_validator_and_valid_list_add_another_item_expecting_exception'))
     suite.addTest(TestGenericDataContainer('test_generic_data_container_int_with_no_validator_and_valid_int'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_int_with_validator_and_invalid_int_value'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_int_with_no_validator_and_invalid_input_type'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_int_with_no_validator_and_valid_int_as_str'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_int_with_no_validator_and_valid_int_as_float'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_float_with_no_validator_and_valid_float'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_float_with_no_validator_and_valid_float_as_str'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_float_with_no_validator_and_valid_float_as_int'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_float_with_no_validator_and_invalid_input_type'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_float_with_validator_and_valid_float'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_float_with_validator_and_invalid_float_expect_exception'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_int_with_invalid_validator_expect_exception'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_float_with_invalid_validator_expect_exception'))
 
     suite.addTest(TestGenericIOProcessor('test_init_generic_io_processor'))
 

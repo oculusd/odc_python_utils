@@ -16,7 +16,7 @@ Usage with coverage:
 import unittest
 from oculusd_utils.persistence import GenericDataContainer, GenericIOProcessor, GenericIO, TextFileIO
 from decimal import Decimal
-from oculusd_utils.security.validation import DataValidator, L, StringDataValidator
+from oculusd_utils.security.validation import DataValidator, L, StringDataValidator, NumberDataValidator
 
 
 class DictValueNotNoneDataValidator(DataValidator):
@@ -236,6 +236,78 @@ class TestGenericDataContainer(unittest.TestCase):
         l = 1001
         result = gdc.store(data=l)
         self.assertEqual(1, result)
+
+    def test_generic_data_container_int_with_validator_and_invalid_int_value(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=int, data_validator=NumberDataValidator())
+        l = 1001
+        with self.assertRaises(Exception):
+            gdc.store(data=l, min_value=2000, max_value=3000)
+
+    def test_generic_data_container_int_with_no_validator_and_invalid_input_type(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=int, data_validator=NumberDataValidator())
+        l = 1001
+        with self.assertRaises(Exception):
+            gdc.store(data=Decimal(l), min_value=2000, max_value=3000)
+
+    def test_generic_data_container_int_with_no_validator_and_valid_int_as_str(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=int)
+        l = '1001'
+        result = gdc.store(data=l)
+        self.assertEqual(1, result)
+
+    def test_generic_data_container_int_with_no_validator_and_valid_int_as_float(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=int)
+        l = 1001.0
+        result = gdc.store(data=l)
+        self.assertEqual(1, result)
+
+    def test_generic_data_container_float_with_no_validator_and_valid_float(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=float)
+        l = 1001.01
+        result = gdc.store(data=l)
+        self.assertEqual(1, result)
+
+    def test_generic_data_container_float_with_no_validator_and_valid_float_as_str(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=float)
+        l = '1001.01'
+        result = gdc.store(data=l)
+        self.assertEqual(1, result)
+
+    def test_generic_data_container_float_with_no_validator_and_valid_float_as_int(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=float)
+        l = 1001
+        result = gdc.store(data=l)
+        self.assertEqual(1, result)
+
+    def test_generic_data_container_float_with_no_validator_and_invalid_input_type(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=float)
+        l = Decimal(1001)
+        with self.assertRaises(Exception):
+            gdc.store(data=l)
+
+    def test_generic_data_container_float_with_validator_and_valid_float(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=float, data_validator=NumberDataValidator())
+        l = 1001.001
+        result = gdc.store(data=l, min_value=0.0, max_value=9999.0)
+        self.assertEqual(1, result)
+
+    def test_generic_data_container_float_with_validator_and_invalid_float_expect_exception(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=float, data_validator=NumberDataValidator())
+        l = 1001.001
+        with self.assertRaises(Exception):
+            gdc.store(data=l, min_value=5555.0, max_value=9999.0)
+
+    def test_generic_data_container_int_with_invalid_validator_expect_exception(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=int, data_validator=StringDataValidator())
+        l = 1001
+        with self.assertRaises(Exception):
+            gdc.store(data=l, min_value=0, max_value=3000)
+
+    def test_generic_data_container_float_with_invalid_validator_expect_exception(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=float, data_validator=StringDataValidator())
+        l = 1001.001
+        with self.assertRaises(Exception):
+            gdc.store(data=l, min_value=0.0, max_value=3000.0)
 
 
 class TestGenericIOProcessor(unittest.TestCase):
