@@ -17,6 +17,7 @@ import unittest
 from oculusd_utils.persistence import GenericDataContainer, GenericIOProcessor, GenericIO, TextFileIO
 from decimal import Decimal
 from oculusd_utils.security.validation import DataValidator, L, StringDataValidator, NumberDataValidator
+from datetime import datetime
 
 
 class DictValueNotNoneDataValidator(DataValidator):
@@ -308,6 +309,63 @@ class TestGenericDataContainer(unittest.TestCase):
         l = 1001.001
         with self.assertRaises(Exception):
             gdc.store(data=l, min_value=0.0, max_value=3000.0)
+
+    def test_generic_data_container_decimal_with_no_validator_and_valid_decimal(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=Decimal)
+        l = Decimal(1001.01)
+        result = gdc.store(data=l)
+        self.assertEqual(1, result)
+        self.assertEqual(0, l.compare(gdc.data))
+
+    def test_generic_data_container_decimal_with_no_validator_and_valid_int(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=Decimal)
+        l = 1001
+        result = gdc.store(data=l)
+        self.assertEqual(1, result)
+        self.assertEqual(0, Decimal(l).compare(gdc.data))
+
+    def test_generic_data_container_decimal_with_no_validator_and_valid_float(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=Decimal)
+        l = 1001.001
+        result = gdc.store(data=l)
+        self.assertEqual(1, result)
+        self.assertEqual(0, Decimal(l).compare(gdc.data))
+
+    def test_generic_data_container_decimal_with_no_validator_and_valid_str(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=Decimal)
+        l = '1001.005'
+        result = gdc.store(data=l)
+        self.assertEqual(1, result)
+        self.assertEqual(0, Decimal(l).compare(gdc.data))
+
+    def test_generic_data_container_decimal_with_no_validator_and_invalid_input_type_expect_exception(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=Decimal)
+        l = datetime.now()
+        with self.assertRaises(Exception):
+            gdc.store(data=l)
+
+    def test_generic_data_container_decimal_with_validator_and_valid_decimal(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=Decimal, data_validator=NumberDataValidator())
+        l = Decimal(1001.01)
+        result = gdc.store(data=l, min_value=Decimal(0.0), max_value=Decimal(9999.0))
+        self.assertEqual(1, result)
+        self.assertEqual(0, l.compare(gdc.data))
+
+    def test_generic_data_container_decimal_with_validator_and_invalid_decimal_expect_exception(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=Decimal, data_validator=NumberDataValidator())
+        l = Decimal(1001.01)
+        with self.assertRaises(Exception):
+            gdc.store(data=l, min_value=Decimal(8888.0), max_value=Decimal(9999.0))
+
+    def test_generic_data_container_decimal_with_invalid_validator_and_valid_decimal_expect_exception(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=Decimal, data_validator=StringDataValidator())
+        l = Decimal(1001.01)
+        with self.assertRaises(Exception):
+            gdc.store(data=l, min_value=Decimal(0.0), max_value=Decimal(9999.0))
+
+    def test_generic_data_container_unsupported_data_type_expect_exception(self):
+        with self.assertRaises(Exception):
+            gdc = GenericDataContainer(result_set_name='Test', data_type=datetime)
 
 
 class TestGenericIOProcessor(unittest.TestCase):

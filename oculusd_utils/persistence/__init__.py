@@ -191,8 +191,6 @@ class GenericDataContainer:
             return self._store_float(data=data, key=key, **kwarg)
         elif self.data_type.__name__ == 'Decimal':
             return self._store_decimal(data=data, key=key, **kwarg)
-        else:
-            raise Exception('Data was not a supported type. Type="{}"'.format(type(data)))
 
 
 class GenericIOProcessor:

@@ -114,6 +114,15 @@ def suite():
     suite.addTest(TestGenericDataContainer('test_generic_data_container_float_with_validator_and_invalid_float_expect_exception'))
     suite.addTest(TestGenericDataContainer('test_generic_data_container_int_with_invalid_validator_expect_exception'))
     suite.addTest(TestGenericDataContainer('test_generic_data_container_float_with_invalid_validator_expect_exception'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_decimal_with_no_validator_and_valid_decimal'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_decimal_with_no_validator_and_valid_int'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_decimal_with_no_validator_and_valid_float'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_decimal_with_no_validator_and_valid_str'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_decimal_with_no_validator_and_invalid_input_type_expect_exception'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_decimal_with_validator_and_valid_decimal'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_decimal_with_validator_and_invalid_decimal_expect_exception'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_decimal_with_invalid_validator_and_valid_decimal_expect_exception'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_unsupported_data_type_expect_exception'))
 
     suite.addTest(TestGenericIOProcessor('test_init_generic_io_processor'))
 
