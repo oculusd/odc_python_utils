@@ -148,8 +148,10 @@ def suite():
     suite.addTest(TestNumberDataValidator('test_number_data_validator_invalid_number_expect_fail'))
 
     suite.addTest(TestValidateFileExistIOProcessor('test_init_validate_file_exists_io_processor'))
-    suite.addTest(TestValidateFileExistIOProcessor('test_validate_file_exists_io_processor_test_temp_file'))
+    suite.addTest(TestValidateFileExistIOProcessor('test_validate_file_exists_io_processor_test_file'))
     suite.addTest(TestValidateFileExistIOProcessor('test_validate_file_exists_io_processor_test_non_existing_file_expect_exception'))
+    suite.addTest(TestValidateFileExistIOProcessor('test_validate_file_exists_io_processor_test_invalid_generic_data_container_expect_exception'))
+    suite.addTest(TestValidateFileExistIOProcessor('test_validate_file_exists_io_processor_test_invalid_generic_data_container_value_type_expect_exception'))
 
     return suite
 

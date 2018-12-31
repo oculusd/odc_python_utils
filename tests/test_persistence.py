@@ -402,22 +402,47 @@ class TestTextFileIO(unittest.TestCase):
 class TestValidateFileExistIOProcessor(unittest.TestCase):
 
     def setUp(self):
-        with open('somefile.txt', 'w') as f:
+        self.gdc = GenericDataContainer(result_set_name='Test', data_type=str)
+        self.gdc.store(data='somefile.txt')
+        with open(self.gdc.data, 'w') as f:
             f.write('TEST')
 
     def tearDown(self):
-        os.remove('somefile.txt')
+        os.remove(self.gdc.data)
 
     def test_init_validate_file_exists_io_processor(self):
         fp = ValidateFileExistIOProcessor()
         self.assertIsNotNone(fp)
         self.assertIsInstance(fp, ValidateFileExistIOProcessor)
-        self.assertIsNone(fp.logger)
+        self.assertIsNotNone(fp.logger)
 
-    def test_validate_file_exists_io_processor_test_temp_file(self):
-        self.fail('No test code implemented yet')
+    def test_validate_file_exists_io_processor_test_file(self):
+        fp = ValidateFileExistIOProcessor()
+        exception_raised = False
+        try:
+            fp.process(data=self.gdc)
+        except:
+            exception_raised = True
+        self.assertFalse(exception_raised)
 
     def test_validate_file_exists_io_processor_test_non_existing_file_expect_exception(self):
-        self.fail('No test code implemented yet')
+        gdc = GenericDataContainer(result_set_name='Test', data_type=str)
+        gdc.store(data='null_file.txt')
+        fp = ValidateFileExistIOProcessor()
+        with self.assertRaises(Exception):
+            fp.process(data=gdc)
+
+    def test_validate_file_exists_io_processor_test_invalid_generic_data_container_expect_exception(self):
+        fp = ValidateFileExistIOProcessor()
+        with self.assertRaises(Exception):
+            fp.process(data='somefile.txt')
+
+    def test_validate_file_exists_io_processor_test_invalid_generic_data_container_value_type_expect_exception(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=list)
+        gdc.store(data=['somefile.txt'])
+        fp = ValidateFileExistIOProcessor()
+        with self.assertRaises(Exception):
+            fp.process(data=gdc)
+    
 
 # EOF
