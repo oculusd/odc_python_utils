@@ -343,15 +343,15 @@ class TextFileIO(GenericIO):
             self.cached_data_timestamp = 0
         data = GenericDataContainer(result_set_name=self.uri, data_type=str)
         data_str = ''
+        lines = list()
         with open(self.uri, 'r') as f:
-            for line in f.readlines():
-                if len(data_str) > 0:
-                    data_str = '{}\n{}'.format(
-                        data_str,
-                        line.rstrip()
-                    )
-                else:
-                    data_str = line
+            lines = f.readlines()
+        if len(lines) > 1:
+            data_str = ''.join(lines)
+        elif len(lines) == 1:
+            data_str = lines[0]
+        else:
+            data_str = ''
         data.store(data=data_str)
         self.logger.info('{} bytes read.'.format(len(data_str)))
         if self.enable_cache is True:

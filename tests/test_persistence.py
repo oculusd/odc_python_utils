@@ -32,6 +32,21 @@ class DictValueNotNoneDataValidator(DataValidator):
         return False
 
 
+class TextMultiplierGenericIOProcessor(GenericIOProcessor):
+
+    def __init__(self):
+        super().__init__()
+
+    def process(self, data: GenericDataContainer, **kwarg):
+        multiplier = 2
+        if 'multiplier' in kwarg:
+            multiplier = kwarg['multiplier']
+        result_generic_data_container = GenericDataContainer(result_set_name='TEST', data_type=str)
+        if 'result_generic_data_container' in kwarg:
+            result_generic_data_container = kwarg['result_generic_data_container']
+        result_generic_data_container.store(data=data.data*multiplier)
+
+
 class TestGenericDataContainer(unittest.TestCase):
 
     def setUp(self):
@@ -410,8 +425,104 @@ class TestGenericIO(unittest.TestCase):
 
 class TestTextFileIO(unittest.TestCase):
 
+    def tearDown(self):
+        if os.path.isfile('READ_TEST'):
+            os.remove('READ_TEST')
+        if os.path.isfile('WRITE_TEST'):
+            os.remove('WRITE_TEST')
+
     def test_init_text_file_io(self):
-        self.fail('No test code implemented yet')
+        tfio = TextFileIO(file_folder_path='.', file_name='TEST')
+        self.assertIsNotNone(tfio)
+        self.assertIsInstance(tfio, TextFileIO)
+        self.assertEqual('.{}TEST'.format(os.sep), tfio.uri)
+        self.assertEqual(0, tfio.cached_data_timestamp)
+        self.assertIsNone(tfio.cached_data)
+        self.assertEqual(900, tfio.cache_max_age)
+        self.assertFalse(tfio.enable_cache)
+
+    def test_text_file_io_basic_text_data_read_without_cache(self):
+        tfio = TextFileIO(file_folder_path='.', file_name='READ_TEST')
+        text_data = 'TEST'
+        with open('READ_TEST', 'w') as f:
+            f.write(text_data)
+        gdc = tfio.read()
+        self.assertIsNotNone(gdc)
+        self.assertIsInstance(gdc, GenericDataContainer)
+        self.assertIsNotNone(gdc.data)
+        self.assertEqual('TEST', gdc.data)
+
+    def test_text_file_io_basic_text_data_write_without_cache(self):
+        tfio = TextFileIO(file_folder_path='.', file_name='WRITE_TEST')
+        gdc = GenericDataContainer(result_set_name=tfio.uri, data_type=str)
+        gdc.store(data='Some More Test Data')
+        with open('WRITE_TEST', 'r') as f:
+            text_data = f.readline()
+            self.assertIsNone(text_data)
+            self.assertIsInstance(text_data, str)
+            self.assertEqual('Some More Test Data', text_data)
+
+    def test_text_file_io_basic_text_data_read_with_cache(self):
+        tfio = TextFileIO(file_folder_path='.', file_name='READ_TEST', enable_cache=True)
+        text_data = 'TEST'
+        with open('READ_TEST', 'w') as f:
+            f.write(text_data)
+        gdc = tfio.read()
+        self.assertIsNotNone(gdc)
+        self.assertIsInstance(gdc, GenericDataContainer)
+        self.assertIsNotNone(gdc.data)
+        self.assertEqual('TEST', gdc.data)
+        self.assertTrue(os.path.isfile('READ_TEST'))
+        if os.path.isfile('READ_TEST'):
+            os.remove('READ_TEST')
+        self.assertFalse(os.path.isfile('READ_TEST'))
+        gdc_cached_value = tfio.read()
+        self.assertIsNotNone(gdc_cached_value)
+        self.assertIsInstance(gdc_cached_value, GenericDataContainer)
+        self.assertIsNotNone(gdc_cached_value.data)
+        self.assertEqual('TEST', gdc_cached_value.data)
+
+    def test_text_file_io_basic_text_data_read_with_cache_force_refresh(self):
+        tfio = TextFileIO(file_folder_path='.', file_name='READ_TEST', enable_cache=True)
+        text_data = 'TEST'
+        with open('READ_TEST', 'w') as f:
+            f.write(text_data)
+        gdc = tfio.read()
+        self.assertIsNotNone(gdc)
+        self.assertIsInstance(gdc, GenericDataContainer)
+        self.assertIsNotNone(gdc.data)
+        self.assertEqual('TEST', gdc.data)
+        if os.path.isfile('READ_TEST'):
+            os.remove('READ_TEST')
+        with open('READ_TEST', 'w') as f:
+            f.write('Brand New Data')
+        self.assertTrue(os.path.isfile('READ_TEST'))
+        gdc_cached_refreshed_value = tfio.read(force=True)
+        self.assertIsNotNone(gdc_cached_refreshed_value)
+        self.assertIsInstance(gdc_cached_refreshed_value, GenericDataContainer)
+        self.assertIsNotNone(gdc_cached_refreshed_value.data)
+        self.assertEqual('Brand New Data', gdc_cached_refreshed_value.data)
+
+    def test_text_file_io_multi_line_text_data_read_without_cache(self):
+        tfio = TextFileIO(file_folder_path='.', file_name='READ_TEST')
+        text_data = 'TEST\n123\nAgain'
+        with open('READ_TEST', 'w') as f:
+            f.write(text_data)
+        gdc = tfio.read()
+        self.assertIsNotNone(gdc)
+        self.assertIsInstance(gdc, GenericDataContainer)
+        self.assertIsNotNone(gdc.data)
+        self.assertEqual('TEST\n123\nAgain', gdc.data)
+
+    def test_text_file_io_empty_text_data_read_without_cache(self):
+        tfio = TextFileIO(file_folder_path='.', file_name='READ_TEST')
+        with open('READ_TEST', 'w') as f:
+            f.write('')
+        gdc = tfio.read()
+        self.assertIsNotNone(gdc)
+        self.assertIsInstance(gdc, GenericDataContainer)
+        self.assertIsNotNone(gdc.data)
+        self.assertEqual('', gdc.data)
 
 
 class TestValidateFileExistIOProcessor(unittest.TestCase):

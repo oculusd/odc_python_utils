@@ -132,6 +132,11 @@ def suite():
     suite.addTest(TestGenericIO('test_generic_io_write_unimplemented_exception'))
 
     suite.addTest(TestTextFileIO('test_init_text_file_io'))
+    suite.addTest(TestTextFileIO('test_text_file_io_basic_text_data_read_without_cache'))
+    suite.addTest(TestTextFileIO('test_text_file_io_basic_text_data_read_with_cache'))
+    suite.addTest(TestTextFileIO('test_text_file_io_basic_text_data_read_with_cache_force_refresh'))
+    suite.addTest(TestTextFileIO('test_text_file_io_multi_line_text_data_read_without_cache'))
+    suite.addTest(TestTextFileIO('test_text_file_io_empty_text_data_read_without_cache'))
 
     suite.addTest(TestNumberDataValidator('test_init_number_data_validator'))
     suite.addTest(TestNumberDataValidator('test_number_data_validator_int_input_no_validator_params'))
