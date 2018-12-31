@@ -20,7 +20,7 @@ import unittest
 from tests.test_logging import TestOculusDLogger
 from tests.test_security import TestInitFunctions
 from tests.test_validation import TestEmailValidation, TestStringValidation, TestDataValidator, TestStringDataValidator, TestNumberDataValidator
-from tests.test_persistence import TestGenericDataContainer, TestGenericIOProcessor, TestGenericIO, TestTextFileIO
+from tests.test_persistence import TestGenericDataContainer, TestGenericIOProcessor, TestGenericIO, TestTextFileIO, TestValidateFileExistIOProcessor
 
 
 def suite():
@@ -125,6 +125,7 @@ def suite():
     suite.addTest(TestGenericDataContainer('test_generic_data_container_unsupported_data_type_expect_exception'))
 
     suite.addTest(TestGenericIOProcessor('test_init_generic_io_processor'))
+    suite.addTest(TestGenericIOProcessor('test_generic_io_processor_process_expect_exception'))
 
     suite.addTest(TestGenericIO('test_init_generic_io'))
 
@@ -145,6 +146,10 @@ def suite():
     suite.addTest(TestNumberDataValidator('test_number_data_validator_int_input_with_validator_params_expect_fail_input_less_than_min_value'))
     suite.addTest(TestNumberDataValidator('test_number_data_validator_int_input_with_validator_params_expect_fail_input_greater_than_max_value'))
     suite.addTest(TestNumberDataValidator('test_number_data_validator_invalid_number_expect_fail'))
+
+    suite.addTest(TestValidateFileExistIOProcessor('test_init_validate_file_exists_io_processor'))
+    suite.addTest(TestValidateFileExistIOProcessor('test_validate_file_exists_io_processor_test_temp_file'))
+    suite.addTest(TestValidateFileExistIOProcessor('test_validate_file_exists_io_processor_test_non_existing_file_expect_exception'))
 
     return suite
 

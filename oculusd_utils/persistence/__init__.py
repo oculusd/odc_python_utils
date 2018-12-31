@@ -259,6 +259,33 @@ class GenericIOProcessor:
         raise Exception('Not yet implemented')
 
 
+class ValidateFileExistIOProcessor(GenericIOProcessor):
+    """The TestFileExistIOProcessor should be used in cases where the existance of a file should be tested for
+    """
+    def __init__(self, logger=L):
+        super().__init__(logger=logger)
+
+    def process(self, data: GenericDataContainer, **kwarg):
+        """This method will take the text string stored in the data container and assume that is a file path
+
+        The existence of the file path will be tested. An exception will be raised if the file path does not exist
+
+        Results will be logged
+
+        :param data: GenericDataContainer storing a string containing a file path
+        """
+        if not isinstance(data, GenericDataContainer):
+            self.logger.error('Cannot validate file - invalid data type. Expected a GenericDataContainer')
+            raise Exception('Expected a GenericDataContainer')
+        if not data.data_type.__name__ == 'str':
+            self.logger.error('Cannot validate file - invalid data type. Expected a GenericDataContainer storing a string value')
+            raise Exception('Expected a string in GenericDataContainer')
+        if not os.path.isfile(data.data):
+            self.logger.error('File "{}" does not seem to exists'.format(data.data))
+            raise Exception('File not found')
+        self.logger.info('File "{}" exists'.format(data.data))
+
+
 class GenericIO:
 
     def __init__(self, uri: str, logger=L):

@@ -14,10 +14,11 @@ Usage with coverage:
 """
 
 import unittest
-from oculusd_utils.persistence import GenericDataContainer, GenericIOProcessor, GenericIO, TextFileIO
+from oculusd_utils.persistence import GenericDataContainer, GenericIOProcessor, GenericIO, TextFileIO, ValidateFileExistIOProcessor
 from decimal import Decimal
 from oculusd_utils.security.validation import DataValidator, L, StringDataValidator, NumberDataValidator
 from datetime import datetime
+import os
 
 
 class DictValueNotNoneDataValidator(DataValidator):
@@ -371,7 +372,19 @@ class TestGenericDataContainer(unittest.TestCase):
 class TestGenericIOProcessor(unittest.TestCase):
 
     def test_init_generic_io_processor(self):
-        self.fail('No test code implemented yet')
+        giop = GenericIOProcessor()
+        self.assertIsNotNone(giop)
+        self.assertIsInstance(giop, GenericIOProcessor)
+        self.assertIsNotNone(giop.logger)
+
+    def test_generic_io_processor_process_expect_exception(self):
+        giop = GenericIOProcessor()
+        gdc = GenericDataContainer(result_set_name='Test', data_type=Decimal, data_validator=NumberDataValidator())
+        l = Decimal(1001.01)
+        result = gdc.store(data=l, min_value=Decimal(0.0), max_value=Decimal(9999.0))
+        self.assertEqual(1, result)
+        with self.assertRaises(Exception):
+            giop.process(data=gdc)
 
 
 class TestGenericIO(unittest.TestCase):
@@ -385,5 +398,26 @@ class TestTextFileIO(unittest.TestCase):
     def test_init_text_file_io(self):
         self.fail('No test code implemented yet')
 
+
+class TestValidateFileExistIOProcessor(unittest.TestCase):
+
+    def setUp(self):
+        with open('somefile.txt', 'w') as f:
+            f.write('TEST')
+
+    def tearDown(self):
+        os.remove('somefile.txt')
+
+    def test_init_validate_file_exists_io_processor(self):
+        fp = ValidateFileExistIOProcessor()
+        self.assertIsNotNone(fp)
+        self.assertIsInstance(fp, ValidateFileExistIOProcessor)
+        self.assertIsNone(fp.logger)
+
+    def test_validate_file_exists_io_processor_test_temp_file(self):
+        self.fail('No test code implemented yet')
+
+    def test_validate_file_exists_io_processor_test_non_existing_file_expect_exception(self):
+        self.fail('No test code implemented yet')
 
 # EOF
