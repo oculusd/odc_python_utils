@@ -118,6 +118,12 @@ def suite():
     suite.addTest(TestNumberDataValidator('test_number_data_validator_str_input_with_validator_params_expect_pass'))
     suite.addTest(TestNumberDataValidator('test_number_data_validator_decimal_input_no_validator_params'))
     suite.addTest(TestNumberDataValidator('test_number_data_validator_decimal_input_with_validator_params_expect_pass'))
+    suite.addTest(TestNumberDataValidator('test_number_data_validator_decimal_input_with_invalid_validator_params_expect_fail'))
+    suite.addTest(TestNumberDataValidator('test_number_data_validator_decimal_input_with_validator_params_expect_fail_input_less_than_min_value'))
+    suite.addTest(TestNumberDataValidator('test_number_data_validator_decimal_input_with_validator_params_expect_fail_input_greater_than_max_value'))
+    suite.addTest(TestNumberDataValidator('test_number_data_validator_int_input_with_validator_params_expect_fail_input_less_than_min_value'))
+    suite.addTest(TestNumberDataValidator('test_number_data_validator_int_input_with_validator_params_expect_fail_input_greater_than_max_value'))
+    suite.addTest(TestNumberDataValidator('test_number_data_validator_invalid_number_expect_fail'))
 
     return suite
 

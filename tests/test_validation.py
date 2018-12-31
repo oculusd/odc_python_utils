@@ -18,6 +18,7 @@ from oculusd_utils.security.validation import is_valid_email, validate_string, D
 from oculusd_utils.persistence import GenericDataContainer
 import random
 from decimal import Decimal
+from datetime import datetime
 
 
 class TestEmailValidation(unittest.TestCase):
@@ -317,6 +318,8 @@ class TestNumberDataValidator(unittest.TestCase):
         self.assertIsNotNone(result_pos_number)
         self.assertIsInstance(result_pos_number, bool)
         self.assertTrue(result_pos_number)
+        result = v.validate(data=num_pos, min_value=Decimal(self.positive_float-0.0001), max_value=Decimal(self.positive_float+0.0001))
+        self.assertTrue(result)
 
     def test_number_data_validator_decimal_input_no_validator_params(self):
         num_pos = Decimal('{}'.format(self.positive_float))
@@ -343,6 +346,43 @@ class TestNumberDataValidator(unittest.TestCase):
         self.assertIsNotNone(result_pos_number)
         self.assertIsInstance(result_pos_number, bool)
         self.assertTrue(result_pos_number)
+
+    def test_number_data_validator_decimal_input_with_invalid_validator_params_expect_fail(self):
+        num_pos = Decimal('{}'.format(self.positive_float))
+        v = NumberDataValidator()
+        with self.assertRaises(Exception):
+            v.validate(data=num_pos, min_value=0.0)
+        with self.assertRaises(Exception):
+            v.validate(data=num_pos, max_value=100000.0)
+
+    def test_number_data_validator_decimal_input_with_validator_params_expect_fail_input_less_than_min_value(self):
+        num_pos = Decimal('{}'.format(self.positive_float))
+        v = NumberDataValidator()
+        result = v.validate(data=num_pos, min_value=Decimal(self.positive_float+0.0001))
+        self.assertFalse(result)
+
+    def test_number_data_validator_decimal_input_with_validator_params_expect_fail_input_greater_than_max_value(self):
+        num_pos = Decimal('{}'.format(self.positive_float))
+        v = NumberDataValidator()
+        result = v.validate(data=num_pos, max_value=Decimal(self.positive_float-0.0001))
+        self.assertFalse(result)
+
+    def test_number_data_validator_int_input_with_validator_params_expect_fail_input_less_than_min_value(self):
+        num_pos = self.negative_int
+        v = NumberDataValidator()
+        result = v.validate(data=num_pos, min_value=1)
+        self.assertFalse(result)
+
+    def test_number_data_validator_int_input_with_validator_params_expect_fail_input_greater_than_max_value(self):
+        num_pos = self.positive_int
+        v = NumberDataValidator()
+        result = v.validate(data=num_pos, max_value=-1)
+        self.assertFalse(result)
+
+    def test_number_data_validator_invalid_number_expect_fail(self):
+        v = NumberDataValidator()
+        with self.assertRaises(Exception):
+            v.validate(data=datetime.now(), min_value=0.0)
         
 
 if __name__ == '__main__':
