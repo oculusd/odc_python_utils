@@ -375,7 +375,7 @@ class TextFileIO(GenericIO):
             else:
                 data_to_write = '{}'.format(data_to_write)
         with open(self.uri, 'w') as f:
-            f.write(data.data)
+            f.write(data_to_write)
             if self.enable_cache is True:
                 self.cached_data = data
                 self.cached_data_timestamp = get_utc_timestamp()

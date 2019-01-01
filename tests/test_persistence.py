@@ -19,6 +19,7 @@ from decimal import Decimal
 from oculusd_utils.security.validation import DataValidator, L, StringDataValidator, NumberDataValidator
 from datetime import datetime
 import os
+import json
 
 
 class DictValueNotNoneDataValidator(DataValidator):
@@ -523,6 +524,133 @@ class TestTextFileIO(unittest.TestCase):
         self.assertIsInstance(gdc, GenericDataContainer)
         self.assertIsNotNone(gdc.data)
         self.assertEqual('', gdc.data)
+
+    def test_text_file_io_basic_text_data_read_without_cache_with_read_processor(self):
+        iop = TextMultiplierGenericIOProcessor()
+        gdc_result = GenericDataContainer(result_set_name='Result', data_type=str)
+        tfio = TextFileIO(file_folder_path='.', file_name='READ_TEST')
+        text_data = '*'
+        with open('READ_TEST', 'w') as f:
+            f.write(text_data)
+        tfio.read(read_processor=iop, multiplier=8, result_generic_data_container=gdc_result)
+        self.assertIsNotNone(gdc_result)
+        self.assertIsInstance(gdc_result, GenericDataContainer)
+        self.assertIsNotNone(gdc_result.data)
+        self.assertEqual('********', gdc_result.data)
+
+    def test_text_file_io_basic_text_data_read_without_cache_with_invalid_read_processor_expect_no_changes_in_input_type(self):
+        iop = 'Invalid Processor'
+        gdc_result = {'Test': 123}
+        tfio = TextFileIO(file_folder_path='.', file_name='READ_TEST')
+        text_data = '*'
+        with open('READ_TEST', 'w') as f:
+            f.write(text_data)
+        tfio.read(read_processor=iop, multiplier=8, result_generic_data_container=gdc_result)
+        self.assertIsNotNone(gdc_result)
+        self.assertIsInstance(gdc_result, dict)
+        self.assertEqual(1, len(gdc_result))
+        self.assertTrue('Test' in gdc_result)
+        self.assertEqual(123, gdc_result['Test'])
+
+    def test_text_file_io_basic_text_data_write(self):
+        tfio = TextFileIO(file_folder_path='.', file_name='WRITE_TEST')
+        text_data = 'TEST'
+        gdp = GenericDataContainer(data_type=str)
+        gdp.store(data=text_data)
+        tfio.write(data=gdp)
+        result = ''
+        lines = list()
+        with open('WRITE_TEST', 'r') as f:
+            lines = f.readlines()
+        result = ''.join(lines)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertEqual('TEST', result)
+
+    def test_text_file_io_basic_text_data_write_dict_as_json(self):
+        tfio = TextFileIO(file_folder_path='.', file_name='WRITE_TEST')
+        gdp = GenericDataContainer(data_type=dict)
+        gdp.store(data=True, key='DidItWork')
+        tfio.write(data=gdp)
+        lines = list()
+        with open('WRITE_TEST', 'r') as f:
+            lines = f.readlines()
+        result = json.loads(''.join(lines))
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, dict)
+        self.assertEqual(1, len(result))
+        self.assertTrue('DidItWork' in result)
+        self.assertIsInstance(result['DidItWork'], bool)
+        self.assertTrue(result['DidItWork'])
+
+    def test_text_file_io_basic_text_data_write_list_as_string(self):
+        tfio = TextFileIO(file_folder_path='.', file_name='WRITE_TEST')
+        gdp = GenericDataContainer(data_type=list)
+        gdp.store(data=1)
+        gdp.store(data=2)
+        gdp.store(data=3)
+        tfio.write(data=gdp)
+        lines = list()
+        with open('WRITE_TEST', 'r') as f:
+            lines = f.readlines()
+        result = ''.join(lines)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, str)
+        self.assertTrue('[' in result)
+        self.assertTrue(']' in result)
+        self.assertTrue('1' in result)
+        self.assertTrue('2' in result)
+        self.assertTrue('3' in result)
+        self.assertTrue(',' in result)
+
+    def test_text_file_io_basic_text_data_write_with_cache(self):
+        tfio = TextFileIO(file_folder_path='.', file_name='WRITE_TEST', enable_cache=True)
+        text_data = 'TEST'
+        gdp = GenericDataContainer(data_type=str)
+        gdp.store(data=text_data)
+        tfio.write(data=gdp)
+        os.remove('WRITE_TEST')
+        result = tfio.read()
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, GenericDataContainer)
+        self.assertEqual('TEST', result.data)
+
+    def test_text_file_io_basic_text_data_write_without_cache_with_write_processor(self):
+        iop = TextMultiplierGenericIOProcessor()
+        gdc_result = GenericDataContainer(result_set_name='Result', data_type=str)
+        tfio = TextFileIO(file_folder_path='.', file_name='WRITE_TEST')
+        text_data = '*'
+        gdp = GenericDataContainer(data_type=str)
+        gdp.store(data=text_data)
+        tfio.write(data=gdp, write_processor=iop, multiplier=8, result_generic_data_container=gdc_result)
+        result = ''
+        lines = list()
+        with open('WRITE_TEST', 'r') as f:
+            lines = f.readlines()
+        result = ''.join(lines)
+        self.assertEqual(text_data, result)
+        self.assertIsNotNone(gdc_result)
+        self.assertIsInstance(gdc_result, GenericDataContainer)
+        self.assertIsNotNone(gdc_result.data)
+        self.assertEqual('********', gdc_result.data)
+
+    def test_text_file_io_basic_text_data_write_without_cache_with_invalid_write_processor(self):
+        iop = 'This is not a real processor'
+        gdc_result = GenericDataContainer(result_set_name='Result', data_type=str)
+        tfio = TextFileIO(file_folder_path='.', file_name='WRITE_TEST')
+        text_data = '*'
+        gdp = GenericDataContainer(data_type=str)
+        gdp.store(data=text_data)
+        tfio.write(data=gdp, write_processor=iop, multiplier=8, result_generic_data_container=gdc_result)
+        result = ''
+        lines = list()
+        with open('WRITE_TEST', 'r') as f:
+            lines = f.readlines()
+        result = ''.join(lines)
+        self.assertEqual(text_data, result)
+        self.assertIsNotNone(gdc_result)
+        self.assertIsInstance(gdc_result, GenericDataContainer)
+        self.assertEqual('', gdc_result.data)
 
 
 class TestValidateFileExistIOProcessor(unittest.TestCase):
