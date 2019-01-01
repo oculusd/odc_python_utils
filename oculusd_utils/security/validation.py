@@ -7,6 +7,7 @@
 import re
 import traceback
 from oculusd_utils import OculusDLogger
+from decimal import Decimal
 
 
 L = OculusDLogger()
@@ -48,5 +49,144 @@ def validate_string(
         if ' ' not in input_str:
             return False
     return True
+
+
+class DataValidator:
+    """The DataValidator base class must be extended with specific data type validation classes
+    """
+
+    def __init__(self, logger=L):
+        """Initialise with an optional logger
+
+        :param logger: OculusDLogger (default=OculusDLogger())
+        """
+        self.logger = logger
+
+    def validate(self, data: object, **kwarg)->bool:
+        """This method must be implemented/overridden by the class extending from this base class.
+
+        :param data: object containing data to be validated
+        
+        :returns: bool with True mening validation passed and False meaning validation failed (do not trust the data!)
+        """
+        self.logger.error('You need to implement the logic for this method! Fail safely principle applied - returning False')
+        return False
+
+
+class StringDataValidator(DataValidator):
+
+    def __init__(self, logger=L):
+        super().__init__(logger=logger)
+
+    def validate(self, data: object, **kwarg)->bool:
+        """Checks against def validate_string()
+
+        Optional keyword arguments with the default values:
+            min_length: int=1,
+            max_length: int=255,
+            start_with_alpha: bool=True,
+            contain_at_least_one_space: bool=False,
+            can_be_none: bool=False
+        """
+        min_length = 1
+        max_length = 255
+        start_with_alpha = True
+        contain_at_least_one_space = False
+        can_be_none = False
+        if 'min_length' in kwarg:
+            min_length = kwarg['min_length']
+            self.logger.debug('min_length set in kwarg - value: "{}"'.format(min_length))
+        if 'max_length' in kwarg:
+            max_length = kwarg['max_length']
+            self.logger.debug('max_length set in kwarg - value: "{}"'.format(max_length))
+        if 'start_with_alpha' in kwarg:
+            start_with_alpha = kwarg['start_with_alpha']
+            self.logger.debug('start_with_alpha set in kwarg - value: "{}"'.format(start_with_alpha))
+        if 'contain_at_least_one_space' in kwarg:
+            contain_at_least_one_space = kwarg['contain_at_least_one_space']
+            self.logger.debug('contain_at_least_one_space set in kwarg - value: "{}"'.format(contain_at_least_one_space))
+        if 'can_be_none' in kwarg:
+            can_be_none = kwarg['can_be_none']
+            self.logger.debug('can_be_none set in kwarg - value: "{}"'.format(can_be_none))
+        return validate_string(
+            input_str=data,
+            min_length=min_length,
+            max_length=max_length,
+            start_with_alpha=start_with_alpha,
+            contain_at_least_one_space=contain_at_least_one_space,
+            can_be_none=can_be_none
+        )
+
+
+class NumberDataValidator(DataValidator):
+
+    def __init__(self, logger=L):
+        super().__init__(logger=logger)
+
+    def _validate_decimal(self, data: object, **kwarg)->bool:
+        if 'min_value' in kwarg:
+            if isinstance(kwarg['min_value'], Decimal):
+                if data.compare(kwarg['min_value']) < 0:
+                    self.logger.error('Decimal validation failed')
+                    return False
+            else:
+                raise Exception('min_value parameter must be a Decimal')
+        if 'max_value' in kwarg:
+            if isinstance(kwarg['max_value'], Decimal):
+                if data.compare(kwarg['max_value']) > 0:
+                    self.logger.error('Decimal validation failed')
+                    return False
+            else:
+                raise Exception('min_value parameter must be a Decimal')
+        return True
+
+    def _validate_int(self, data: object, **kwarg)->bool:
+        if 'min_value' in kwarg:
+            if data < kwarg['min_value']:
+                self.logger.error('Number validation failed')
+                return False
+        if 'max_value' in kwarg:
+            if data > kwarg['max_value']:
+                self.logger.error('Number validation failed')
+                return False
+        return True
+
+    def _validate_str(self, data: object, **kwarg)->bool:
+        """If the input data is a str, validate the str number value as a Decimal
+
+        Decimal evaluation will be performed performed thus the input validation parameters must also be converted to Decimal values if supplied
+        """
+        params = dict()
+        if 'min_value' in kwarg:
+            if isinstance(kwarg['min_value'], Decimal):
+                params['min_value'] = kwarg['min_value']
+            else:
+                params['min_value'] = Decimal(kwarg['min_value'])
+        if 'max_value' in kwarg:
+            if isinstance(kwarg['max_value'], Decimal):
+                params['max_value'] = kwarg['max_value']
+            else:
+                params['max_value'] = Decimal(kwarg['max_value'])
+        return self._validate_decimal(data=Decimal(data), **params)
+
+    def validate(self, data: object, **kwarg)->bool:
+        """Basic number validation
+
+        At minimum the input data must be a type that represents a number or that can be converted into a number
+
+        Keyword Arguments:
+
+        :param min_value: int/float/Decimal if set will check the input number is bigger than ths value (non-inclusive test)
+        :param max_value: int/float/Decimal if set will check the input number is smaller than ths value (non-inclusive test)
+        """
+        if isinstance(data, Decimal):
+            return self._validate_decimal(data=data, **kwarg)
+        if isinstance(data, int):
+            return self._validate_int(data=data, **kwarg)
+        if isinstance(data, float):
+            return self._validate_int(data=data, **kwarg) # We can use the same logic as for int...
+        if isinstance(data, str):
+            return self._validate_str(data=data, **kwarg)
+        raise Exception('Unsupported number type')
 
 # EOF

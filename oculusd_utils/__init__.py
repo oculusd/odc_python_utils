@@ -8,20 +8,21 @@ import logging
 import os
 import traceback
 import inspect
+from datetime import datetime
 
 
 DEBUG = os.getenv('DEBUG', None)
-if DEBUG is not None: # pragma: no cover
-    DEBUG = True
-else:
-    DEBUG = False
+if DEBUG is not None:   # pragma: no cover
+    DEBUG = True        # pragma: no cover
+else:                   # pragma: no cover
+    DEBUG = False       # pragma: no cover
 
 
 def get_logging_level():
-    if DEBUG is True:   # pragma: no cover
-        return logging.DEBUG
-    else:
-        return logging.INFO
+    if DEBUG is True:           # pragma: no cover
+        return logging.DEBUG    # pragma: no cover
+    else:                       # pragma: no cover
+        return logging.INFO     # pragma: no cover
 
 
 logger = logging.getLogger(__name__)
@@ -134,5 +135,14 @@ class OculusDLogger:
     def error(self, message: str):
         message = self._format_msg(stack_data=id_caller(), message=message)
         self.logger.error(message)
+
+
+def get_utc_timestamp(with_decimal: bool=False):
+    epoch = datetime(1970,1,1,0,0,0)
+    now = datetime.utcnow()
+    timestamp = (now - epoch).total_seconds()
+    if with_decimal:
+        return timestamp
+    return int(timestamp)
 
 # EOF

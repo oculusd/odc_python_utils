@@ -37,13 +37,14 @@ The simplest way to run all unit tests will be the following method, requiring t
 
     OK
     (venv) $ coverage report -m
-    Name                                   Stmts   Miss  Cover   Missing
-    --------------------------------------------------------------------
-    oculusd_utils/__init__.py                 58      0   100%
-    oculusd_utils/security/__init__.py        18      0   100%
-    oculusd_utils/security/validation.py      30      0   100%
-    --------------------------------------------------------------------
-    TOTAL                                    106      0   100%
+    Name                                    Stmts   Miss  Cover   Missing
+    ---------------------------------------------------------------------
+    oculusd_utils/__init__.py                  64      0   100%
+    oculusd_utils/persistence/__init__.py     234      0   100%
+    oculusd_utils/security/__init__.py         18      0   100%
+    oculusd_utils/security/validation.py      110      0   100%
+    ---------------------------------------------------------------------
+    TOTAL                                     426      0   100%
 
 __Note__: As you jump between branches the coverage numbers may change. Our aim is to always achieve close to 100% coverage
 
@@ -55,5 +56,8 @@ The following utilities are included:
 * Function to mask sensitive strings (like passwords)
 * Simple (regular expression based) email address validation function
 * Simple string validation function, intended to validate input parameters where those parameters are strings
+* Helper classes for persistence that can easily be extended
+* Generic data storage class with some helpful methods and other features
+* Classes to help with parameter validation that can also be extended and used in many of the other classes
 
 More in-dept documentation will follow soon. For now you can refer to the documentation included in the source.

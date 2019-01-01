@@ -9,12 +9,16 @@ Usage with coverage:
 
 ::
 
-    $ coverage run --omit="oculusd_utils/__init__.py,oculusd_utils/security/__init__.py"  -m tests.test_validation
+    $ coverage run --omit="*tests*","oculusd_utils/__init__.py,oculusd_utils/persistence/__init__.py,oculusd_utils/security/__init__.py" -m tests.test_validation
     $ coverage report -m
 """
 
 import unittest
-from oculusd_utils.security.validation import is_valid_email, validate_string
+from oculusd_utils.security.validation import is_valid_email, validate_string, DataValidator, StringDataValidator, NumberDataValidator
+from oculusd_utils.persistence import GenericDataContainer
+import random
+from decimal import Decimal
+from datetime import datetime
 
 
 class TestEmailValidation(unittest.TestCase):
@@ -109,6 +113,277 @@ class TestStringValidation(unittest.TestCase):
         self.assertIsInstance(result, bool)
         self.assertTrue(result)
 
+
+class TestDataValidator(unittest.TestCase):
+
+    def setUp(self):
+        self.short_str = 'abc'
+
+    def test_init_data_validator(self):
+        dv = DataValidator()
+        self.assertIsNotNone(dv)
+        self.assertIsInstance(dv, DataValidator)
+
+    def test_validation_fails(self):
+        dv = DataValidator()
+        result = dv.validate(data=self.short_str)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
+
+class TestStringDataValidator(unittest.TestCase):
+
+    def setUp(self):
+        self.short_str = 'abc'
+
+    def test_init_string_data_validator(self):
+        sdv = StringDataValidator()
+        self.assertIsNotNone(sdv)
+        self.assertIsInstance(sdv, DataValidator)
+        self.assertIsInstance(sdv, StringDataValidator)
+
+    def test_string_data_validator_short_string_all_defaults(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=self.short_str)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
+
+    def test_string_data_validator_data_container_all_defaults(self):
+        self.data_container = GenericDataContainer(result_set_name='Test', data_type=str, data_validator=StringDataValidator())
+        result = self.data_container.store(data=self.short_str)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, int)
+        self.assertEqual(len(self.short_str), result)
+
+    def test_string_data_validator_short_string_with_min_and_max_lengths(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=self.short_str, min_length=2, max_length=5)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
+
+    def test_string_data_validator_short_string_with_min_and_max_lengths_fail_string_to_short(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=self.short_str, min_length=4, max_length=10)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
+    def test_string_data_validator_short_string_with_min_and_max_lengths_fail_string_to_long(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=self.short_str, min_length=1, max_length=2)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
+    def test_string_data_validator_short_string_with_start_with_alpha(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=self.short_str, min_length=2, max_length=5)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
+
+    def test_string_data_validator_short_string_with_start_with_alpha_but_start_with_space(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=' {}'.format(self.short_str), start_with_alpha=True)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
+    def test_string_data_validator_short_string_with_start_with_alpha_and_start_with_space(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=' {}'.format(self.short_str), start_with_alpha=False)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
+
+    def test_string_data_validator_short_string_with_start_with_alpha_but_start_with_numeric(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data='1{}'.format(self.short_str), start_with_alpha=True)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
+    def test_string_data_validator_short_string_with_can_be_none_is_true(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=self.short_str, can_be_none=True)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
+
+    def test_string_data_validator_none_value_with_can_be_none_is_true(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=None, can_be_none=True)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
+
+    def test_string_data_validator_short_string_with_contain_at_least_one_space(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=' {}'.format(self.short_str), contain_at_least_one_space=True, start_with_alpha=False)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertTrue(result)
+
+    def test_string_data_validator_none_value_with_contain_at_least_one_space_but_doesnt(self):
+        sdv = StringDataValidator()
+        result = sdv.validate(data=self.short_str, contain_at_least_one_space=True)
+        self.assertIsNotNone(result)
+        self.assertIsInstance(result, bool)
+        self.assertFalse(result)
+
+
+class TestNumberDataValidator(unittest.TestCase):
+
+    def setUp(self):
+        self.positive_float = random.uniform(0.0, 100.5)
+        self.negative_float = random.uniform(-0.00001, -100.5)
+        self.positive_int = random.randint(0, 1000)
+        self.negative_int = random.randint(0, 1000) * -1
+        self.float_as_str = '{}'.format(self.positive_float)
+
+    def test_init_number_data_validator(self):
+        v = NumberDataValidator()
+        self.assertIsNotNone(v)
+        self.assertIsInstance(v, NumberDataValidator)
+
+    def test_number_data_validator_int_input_no_validator_params(self):
+        v = NumberDataValidator()
+        result_pos_number = v.validate(data=self.positive_int)
+        self.assertIsNotNone(result_pos_number)
+        self.assertIsInstance(result_pos_number, bool)
+        self.assertTrue(result_pos_number)
+        result_neg_number = v.validate(data=self.negative_int)
+        self.assertIsNotNone(result_neg_number)
+        self.assertIsInstance(result_neg_number, bool)
+        self.assertTrue(result_neg_number)
+        result_zero = v.validate(data=0)
+        self.assertIsNotNone(result_zero)
+        self.assertIsInstance(result_zero, bool)
+        self.assertTrue(result_zero)
+
+    def test_number_data_validator_int_input_with_validator_params_expect_pass(self):
+        v = NumberDataValidator()
+        result_pos_number = v.validate(data=self.positive_int, min_value=self.positive_int-1, max_value=self.positive_int+1)
+        self.assertIsNotNone(result_pos_number)
+        self.assertIsInstance(result_pos_number, bool)
+        self.assertTrue(result_pos_number)
+
+    def test_number_data_validator_float_input_no_validator_params(self):
+        v = NumberDataValidator()
+        result_pos_number = v.validate(data=self.positive_float)
+        self.assertIsNotNone(result_pos_number)
+        self.assertIsInstance(result_pos_number, bool)
+        self.assertTrue(result_pos_number)
+        result_neg_number = v.validate(data=self.positive_float)
+        self.assertIsNotNone(result_neg_number)
+        self.assertIsInstance(result_neg_number, bool)
+        self.assertTrue(result_neg_number)
+        result_zero = v.validate(data=0.0)
+        self.assertIsNotNone(result_zero)
+        self.assertIsInstance(result_zero, bool)
+        self.assertTrue(result_zero)
+
+    def test_number_data_validator_float_input_with_validator_params_expect_pass(self):
+        v = NumberDataValidator()
+        result_pos_number = v.validate(data=self.positive_float, min_value=self.positive_float-0.0001, max_value=self.positive_float+0.0001)
+        self.assertIsNotNone(result_pos_number)
+        self.assertIsInstance(result_pos_number, bool)
+        self.assertTrue(result_pos_number)
+
+    def test_number_data_validator_str_input_no_validator_params(self):
+        num_pos = '{}'.format(self.positive_int)
+        num_neg = '{}'.format(self.positive_int)
+        num_zero = '0'
+        v = NumberDataValidator()
+        result_pos_number = v.validate(data=num_pos)
+        self.assertIsNotNone(result_pos_number)
+        self.assertIsInstance(result_pos_number, bool)
+        self.assertTrue(result_pos_number)
+        result_neg_number = v.validate(data=num_neg)
+        self.assertIsNotNone(result_neg_number)
+        self.assertIsInstance(result_neg_number, bool)
+        self.assertTrue(result_neg_number)
+        result_zero = v.validate(data=num_zero)
+        self.assertIsNotNone(result_zero)
+        self.assertIsInstance(result_zero, bool)
+        self.assertTrue(result_zero)
+
+    def test_number_data_validator_str_input_with_validator_params_expect_pass(self):
+        num_pos = '{}'.format(self.positive_float)
+        v = NumberDataValidator()
+        result_pos_number = v.validate(data=num_pos, min_value=self.positive_float-0.0001, max_value=self.positive_float+0.0001)
+        self.assertIsNotNone(result_pos_number)
+        self.assertIsInstance(result_pos_number, bool)
+        self.assertTrue(result_pos_number)
+        result = v.validate(data=num_pos, min_value=Decimal(self.positive_float-0.0001), max_value=Decimal(self.positive_float+0.0001))
+        self.assertTrue(result)
+
+    def test_number_data_validator_decimal_input_no_validator_params(self):
+        num_pos = Decimal('{}'.format(self.positive_float))
+        num_neg = Decimal('{}'.format(self.positive_float))
+        num_zero = Decimal('0.0')
+        v = NumberDataValidator()
+        result_pos_number = v.validate(data=num_pos)
+        self.assertIsNotNone(result_pos_number)
+        self.assertIsInstance(result_pos_number, bool)
+        self.assertTrue(result_pos_number)
+        result_neg_number = v.validate(data=num_neg)
+        self.assertIsNotNone(result_neg_number)
+        self.assertIsInstance(result_neg_number, bool)
+        self.assertTrue(result_neg_number)
+        result_zero = v.validate(data=num_zero)
+        self.assertIsNotNone(result_zero)
+        self.assertIsInstance(result_zero, bool)
+        self.assertTrue(result_zero)
+
+    def test_number_data_validator_decimal_input_with_validator_params_expect_pass(self):
+        num_pos = Decimal('{}'.format(self.positive_float))
+        v = NumberDataValidator()
+        result_pos_number = v.validate(data=num_pos, min_value=Decimal(self.positive_float-0.0001), max_value=Decimal(self.positive_float+0.0001))
+        self.assertIsNotNone(result_pos_number)
+        self.assertIsInstance(result_pos_number, bool)
+        self.assertTrue(result_pos_number)
+
+    def test_number_data_validator_decimal_input_with_invalid_validator_params_expect_fail(self):
+        num_pos = Decimal('{}'.format(self.positive_float))
+        v = NumberDataValidator()
+        with self.assertRaises(Exception):
+            v.validate(data=num_pos, min_value=0.0)
+        with self.assertRaises(Exception):
+            v.validate(data=num_pos, max_value=100000.0)
+
+    def test_number_data_validator_decimal_input_with_validator_params_expect_fail_input_less_than_min_value(self):
+        num_pos = Decimal('{}'.format(self.positive_float))
+        v = NumberDataValidator()
+        result = v.validate(data=num_pos, min_value=Decimal(self.positive_float+0.0001))
+        self.assertFalse(result)
+
+    def test_number_data_validator_decimal_input_with_validator_params_expect_fail_input_greater_than_max_value(self):
+        num_pos = Decimal('{}'.format(self.positive_float))
+        v = NumberDataValidator()
+        result = v.validate(data=num_pos, max_value=Decimal(self.positive_float-0.0001))
+        self.assertFalse(result)
+
+    def test_number_data_validator_int_input_with_validator_params_expect_fail_input_less_than_min_value(self):
+        num_pos = self.negative_int
+        v = NumberDataValidator()
+        result = v.validate(data=num_pos, min_value=1)
+        self.assertFalse(result)
+
+    def test_number_data_validator_int_input_with_validator_params_expect_fail_input_greater_than_max_value(self):
+        num_pos = self.positive_int
+        v = NumberDataValidator()
+        result = v.validate(data=num_pos, max_value=-1)
+        self.assertFalse(result)
+
+    def test_number_data_validator_invalid_number_expect_fail(self):
+        v = NumberDataValidator()
+        with self.assertRaises(Exception):
+            v.validate(data=datetime.now(), min_value=0.0)
+        
 
 if __name__ == '__main__':
     unittest.main()
