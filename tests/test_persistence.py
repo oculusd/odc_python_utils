@@ -175,6 +175,12 @@ class TestGenericDataContainer(unittest.TestCase):
         with self.assertRaises(Exception):
             gdc.store(data=input_str, start_with_alpha=True)
 
+    def test_generic_data_container_string_with_string_validator_and_valid_string(self):
+        gdc = GenericDataContainer(result_set_name='Test', data_type=str, data_validator=StringDataValidator())
+        input_str = 'abc'
+        gdc.store(data=input_str, start_with_alpha=True)
+        self.assertEqual(gdc.data, 'abc')
+
     def test_generic_data_container_string_with_no_validator_and_valid_string(self):
         gdc = GenericDataContainer(result_set_name='Test', data_type=str)
         gdc.store(data='abc')
@@ -457,9 +463,10 @@ class TestTextFileIO(unittest.TestCase):
         tfio = TextFileIO(file_folder_path='.', file_name='WRITE_TEST')
         gdc = GenericDataContainer(result_set_name=tfio.uri, data_type=str)
         gdc.store(data='Some More Test Data')
+        tfio.write(data=gdc)
         with open('WRITE_TEST', 'r') as f:
             text_data = f.readline()
-            self.assertIsNone(text_data)
+            self.assertIsNotNone(text_data)
             self.assertIsInstance(text_data, str)
             self.assertEqual('Some More Test Data', text_data)
 
@@ -675,8 +682,8 @@ class TestValidateFileExistIOProcessor(unittest.TestCase):
         exception_raised = False
         try:
             fp.process(data=self.gdc)
-        except:
-            exception_raised = True
+        except:                     # pragma: no cover
+            exception_raised = True # pragma: no cover
         self.assertFalse(exception_raised)
 
     def test_validate_file_exists_io_processor_test_non_existing_file_expect_exception(self):
@@ -697,6 +704,9 @@ class TestValidateFileExistIOProcessor(unittest.TestCase):
         fp = ValidateFileExistIOProcessor()
         with self.assertRaises(Exception):
             fp.process(data=gdc)
-    
+
+
+if __name__ == '__main__':
+    unittest.main()
 
 # EOF

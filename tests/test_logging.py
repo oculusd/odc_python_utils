@@ -15,7 +15,7 @@ Usage with coverage:
 
 import unittest
 import logging
-from oculusd_utils import OculusDLogger, DEBUG, formatter
+from oculusd_utils import OculusDLogger, DEBUG, formatter, get_utc_timestamp
 from pathlib import Path
 import os
 import traceback
@@ -120,6 +120,21 @@ class TestOculusDLogger(unittest.TestCase):
             last_line = lines[-1]
         self.assertTrue('NO_INPUT_MESSAGE' in last_line)
         self.assertTrue('ERR' in last_line)
+
+
+class TestGetUtcTimestamp(unittest.TestCase):
+
+    def test_get_utc_timestamp_without_decimal(self):
+        ts = get_utc_timestamp()
+        self.assertIsNotNone(ts)
+        self.assertIsInstance(ts, int)
+        self.assertTrue(ts>0)
+
+    def test_get_utc_timestamp_with_decimal(self):
+        ts = get_utc_timestamp(with_decimal=True)
+        self.assertIsNotNone(ts)
+        self.assertIsInstance(ts, float)
+        self.assertTrue(ts>0.5)
 
 if __name__ == '__main__':
     unittest.main()

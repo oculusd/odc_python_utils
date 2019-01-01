@@ -12,12 +12,12 @@ Usage
 
 ::
 
-    $ coverage run  --omit="*tests*","oculusd_utils/__init__.py" -m tests.test_all
+    $ coverage run  --omit="*tests*" -m tests.test_all
     $ coverage report -m
 """
 
 import unittest
-from tests.test_logging import TestOculusDLogger
+from tests.test_logging import TestOculusDLogger, TestGetUtcTimestamp
 from tests.test_security import TestInitFunctions
 from tests.test_validation import TestEmailValidation, TestStringValidation, TestDataValidator, TestStringDataValidator, TestNumberDataValidator
 from tests.test_persistence import TestGenericDataContainer, TestGenericIOProcessor, TestGenericIO, TestTextFileIO, TestValidateFileExistIOProcessor
@@ -33,6 +33,9 @@ def suite():
     suite.addTest(TestOculusDLogger('test_empty_message_logging'))
     suite.addTest(TestOculusDLogger('test_warning_message_logging'))
     suite.addTest(TestOculusDLogger('test_error_message_logging'))
+
+    suite.addTest(TestGetUtcTimestamp('test_get_utc_timestamp_without_decimal'))
+    suite.addTest(TestGetUtcTimestamp('test_get_utc_timestamp_with_decimal'))
 
     suite.addTest(TestInitFunctions('test_mask_str1_defaults'))
     suite.addTest(TestInitFunctions('test_mask_none_string_defaults'))
@@ -123,6 +126,7 @@ def suite():
     suite.addTest(TestGenericDataContainer('test_generic_data_container_decimal_with_validator_and_invalid_decimal_expect_exception'))
     suite.addTest(TestGenericDataContainer('test_generic_data_container_decimal_with_invalid_validator_and_valid_decimal_expect_exception'))
     suite.addTest(TestGenericDataContainer('test_generic_data_container_unsupported_data_type_expect_exception'))
+    suite.addTest(TestGenericDataContainer('test_generic_data_container_string_with_string_validator_and_valid_string'))
 
     suite.addTest(TestGenericIOProcessor('test_init_generic_io_processor'))
     suite.addTest(TestGenericIOProcessor('test_generic_io_processor_process_expect_exception'))
@@ -145,6 +149,7 @@ def suite():
     suite.addTest(TestTextFileIO('test_text_file_io_basic_text_data_write_with_cache'))
     suite.addTest(TestTextFileIO('test_text_file_io_basic_text_data_write_without_cache_with_write_processor'))
     suite.addTest(TestTextFileIO('test_text_file_io_basic_text_data_write_without_cache_with_invalid_write_processor'))
+    suite.addTest(TestTextFileIO('test_text_file_io_basic_text_data_write_without_cache'))
 
     suite.addTest(TestNumberDataValidator('test_init_number_data_validator'))
     suite.addTest(TestNumberDataValidator('test_number_data_validator_int_input_no_validator_params'))

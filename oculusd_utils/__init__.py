@@ -12,17 +12,17 @@ from datetime import datetime
 
 
 DEBUG = os.getenv('DEBUG', None)
-if DEBUG is not None: # pragma: no cover
-    DEBUG = True
-else:
-    DEBUG = False
+if DEBUG is not None:   # pragma: no cover
+    DEBUG = True        # pragma: no cover
+else:                   # pragma: no cover
+    DEBUG = False       # pragma: no cover
 
 
 def get_logging_level():
-    if DEBUG is True:   # pragma: no cover
-        return logging.DEBUG
-    else:
-        return logging.INFO
+    if DEBUG is True:           # pragma: no cover
+        return logging.DEBUG    # pragma: no cover
+    else:                       # pragma: no cover
+        return logging.INFO     # pragma: no cover
 
 
 logger = logging.getLogger(__name__)
