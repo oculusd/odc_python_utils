@@ -323,14 +323,7 @@ class TextFileIO(GenericIO):
             logger=logger
         )
 
-    def read(self, read_processor: GenericIOProcessor=None, **kwarg)->GenericDataContainer:
-        """Read text data from a file
-
-        :param read_processor: GenericIOProcessor that is not used in this function - whatever is supplied here will be ignored (for now)
-        :param force: bool which is an optional argument. If the keyword is present, any cached data will be ignored (cache will be cleared as well)
-
-        :returns: GenericDataContainer
-        """
+    def read_from_cache(self, **kwarg)->str:
         if self.enable_cache is True:
             now = get_utc_timestamp()
             if 'force' not in kwarg:
@@ -341,6 +334,34 @@ class TextFileIO(GenericIO):
                 self.logger.info('Cache reset forced.')
             self.cached_data = None
             self.cached_data_timestamp = 0
+        return None
+
+    def update_cache(self, data: GenericDataContainer, **kwarg):
+        if self.enable_cache is True:
+            self.cached_data = data
+            self.cached_data_timestamp = get_utc_timestamp()
+            self.logger.info('Cache updated')
+
+    def data_processing(self, data: GenericDataContainer, processor: GenericIOProcessor, **kwarg):
+        if processor is not None:
+            if isinstance(processor, GenericIOProcessor):
+                self.logger.info('Running processor')
+                self.logger.debug('kwarg={}'.format(kwarg))
+                processor.process(data=data, **kwarg)
+            else:
+                self.logger.error('Skipping processor - wrong type. Expected a GenericIOProcessor')
+
+    def read(self, read_processor: GenericIOProcessor=None, **kwarg)->GenericDataContainer:
+        """Read text data from a file
+
+        :param read_processor: GenericIOProcessor that is not used in this function - whatever is supplied here will be ignored (for now)
+        :param force: bool which is an optional argument. If the keyword is present, any cached data will be ignored (cache will be cleared as well)
+
+        :returns: GenericDataContainer
+        """
+        data = self.read_from_cache(**kwarg)
+        if data is not None:
+            return data
         data = GenericDataContainer(result_set_name=self.uri, data_type=str)
         data_str = ''
         lines = list()
@@ -354,17 +375,8 @@ class TextFileIO(GenericIO):
             data_str = ''
         data.store(data=data_str)
         self.logger.info('{} bytes read.'.format(len(data_str)))
-        if self.enable_cache is True:
-            self.cached_data = data
-            self.cached_data_timestamp = get_utc_timestamp()
-            self.logger.info('Cache updated')
-        if read_processor is not None:
-            if isinstance(read_processor, GenericIOProcessor):
-                self.logger.info('Running read processor')
-                self.logger.debug('kwarg={}'.format(kwarg))
-                read_processor.process(data=data, **kwarg)
-            else:
-                self.logger.error('Skipping read processor - wrong type. Expected a GenericIOProcessor')
+        self.update_cache(data=data, **kwarg)
+        self.data_processing(data=data, processor=read_processor, **kwarg)
         return data
 
     def write(self, data: GenericDataContainer, write_processor: GenericIOProcessor=None, **kwarg):
@@ -376,15 +388,7 @@ class TextFileIO(GenericIO):
                 data_to_write = '{}'.format(data_to_write)
         with open(self.uri, 'w') as f:
             f.write(data_to_write)
-            if self.enable_cache is True:
-                self.cached_data = data
-                self.cached_data_timestamp = get_utc_timestamp()
-        if write_processor is not None:
-            if isinstance(write_processor, GenericIOProcessor):
-                self.logger.info('Running write processor')
-                self.logger.debug('kwarg={}'.format(kwarg))
-                write_processor.process(data=data, **kwarg)
-            else:
-                self.logger.error('Skipping write processor - wrong type. Expected a GenericIOProcessor')
+            self.update_cache(data=data, **kwarg)
+        self.data_processing(data=data, processor=write_processor, **kwarg)
 
 # EOF
