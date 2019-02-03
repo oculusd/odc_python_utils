@@ -119,20 +119,20 @@ class OculusDLogger:
             handler.setLevel(logging.INFO)
         self.debug_flag = False
 
-    def info(self, message: str):
+    def info(self, message: str, **kwargs):
         message = self._format_msg(stack_data=id_caller(), message=message)
         self.logger.info(message)
 
-    def debug(self, message: str):
+    def debug(self, message: str, **kwargs):
         if self.debug_flag is True:
             message = self._format_msg(stack_data=id_caller(), message=message)
             self.logger.debug(message)
 
-    def warning(self, message: str):
+    def warning(self, message: str, **kwargs):
         message = self._format_msg(stack_data=id_caller(), message=message)
         self.logger.warning(message)
     
-    def error(self, message: str):
+    def error(self, message: str, **kwargs):
         message = self._format_msg(stack_data=id_caller(), message=message)
         self.logger.error(message)
 
